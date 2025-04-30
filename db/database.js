@@ -55,7 +55,55 @@ const createAdminUser = () => {
   }
 };
 
+// Reset database function
+const resetDatabase = () => {
+  console.log('Resetting database...');
+  
+  // Disable foreign key constraints temporarily
+  db.exec('PRAGMA foreign_keys = OFF;');
+  
+  // Get all tables
+  const tables = db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all();
+  
+  // Drop all tables
+  db.exec('BEGIN TRANSACTION');
+  try {
+    tables.forEach(table => {
+      if (table.name !== 'sqlite_sequence' && table.name !== 'sqlite_master') {
+        db.exec(`DROP TABLE IF EXISTS ${table.name}`);
+      }
+    });
+    
+    // Re-initialize the database with schema
+    const schema = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
+    const statements = schema.split(';').filter(stmt => stmt.trim());
+    
+    statements.forEach(statement => {
+      if (statement.trim()) {
+        db.exec(statement);
+      }
+    });
+    
+    // Re-enable foreign key constraints
+    db.exec('PRAGMA foreign_keys = ON;');
+    
+    db.exec('COMMIT');
+    console.log('Database reset successfully!');
+    return true;
+  } catch (error) {
+    db.exec('ROLLBACK');
+    // Re-enable foreign key constraints even if there was an error
+    db.exec('PRAGMA foreign_keys = ON;');
+    console.error('Error resetting database:', error);
+    return false;
+  }
+};
+
 // Initialize the database
 initializeDatabase();
 
-module.exports = db;
+// Export both the database and the resetDatabase function
+module.exports = {
+  db,
+  resetDatabase
+};

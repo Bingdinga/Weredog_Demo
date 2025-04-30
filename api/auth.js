@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
-const db = require('../db/database');
+const { db } = require('../db/database');
 const { isValidEmail, isValidPassword } = require('../utils/validators');
 const logger = require('../utils/logger');
 
