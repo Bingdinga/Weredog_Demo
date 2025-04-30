@@ -29,3 +29,37 @@ Thumbs.db
 .vscode/
 *.sublime-project
 *.sublime-workspace
+
+# 3D Model files
+*.glb
+*.gltf
+*.obj
+*.fbx
+*.blend
+*.dae
+*.stl
+*.3ds
+public/models/
+public/models/high/
+public/models/medium/
+public/models/low/
+
+# Image files
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.tiff
+*.webp
+*.svg
+public/img/
+
+# Exclude placeholder images that should be version controlled
+!public/img/placeholder.svg
+
+# Temporary model files
+*.blend1
+*.blend2
+*.max
+*.c4d
