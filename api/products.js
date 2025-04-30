@@ -61,6 +61,26 @@ router.get('/featured', (req, res) => {
   }
 });
 
+// Get product reviews
+router.get('/:id/reviews', (req, res) => {
+  try {
+    const productId = req.params.id;
+
+    const reviews = db.prepare(`
+      SELECT r.review_id, r.rating, r.comment, r.created_at, u.username
+      FROM reviews r
+      JOIN users u ON r.user_id = u.user_id
+      WHERE r.product_id = ?
+      ORDER BY r.created_at DESC
+    `).all(productId);
+
+    res.json(reviews);
+  } catch (error) {
+    console.error('Error fetching product reviews:', error);
+    res.status(500).json({ error: 'Failed to fetch product reviews' });
+  }
+});
+
 // Get a single product by ID
 router.get('/:id', (req, res) => {
   try {

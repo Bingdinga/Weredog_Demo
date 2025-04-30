@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Detail | 3D E-Commerce Store</title>
+    <link rel="stylesheet" href="/css/main.css">
+</head>
+
+<body>
+    <header>
+        <nav>
+            <div class="logo">3D Shop</div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/products">Products</a></li>
+                <li><a href="/cart">Cart</a></li>
+                <li><a href="/account">Account</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="product-detail">
+            <div class="product-detail-left">
+                <div class="product-viewer-container" id="product-viewer">
+                    <!-- 3D model will be rendered here -->
+                    <div id="model-loading-overlay" class="model-loading-overlay">
+                        <div class="loading-spinner"></div>
+                        <p>Loading 3D model...</p>
+                    </div>
+                    <button id="fullscreen-toggle" class="fullscreen-toggle" title="Toggle fullscreen">
+                        <span class="expand-icon">⤢</span>
+                        <span class="collapse-icon" style="display: none;">⤓</span>
+                    </button>
+                </div>
+                <div class="product-thumbnails" id="product-thumbnails">
+                    <!-- Product thumbnails will be added here dynamically -->
+                </div>
+            </div>
+
+            <div class="product-detail-info">
+                <h1 class="product-detail-title" id="product-name">Product Name</h1>
+                <p class="product-detail-price" id="product-price">$99.99</p>
+                <div class="product-detail-description" id="product-description">
+                    Loading product details...
+                </div>
+
+                <div class="product-detail-actions">
+                    <div class="quantity-controls">
+                        <button id="decrease-quantity" class="quantity-btn">-</button>
+                        <input type="number" id="quantity" class="quantity-input" value="1" min="1">
+                        <button id="increase-quantity" class="quantity-btn">+</button>
+                    </div>
+
+                    <button id="add-to-cart" class="btn">Add to Cart</button>
+                    <button id="add-to-wishlist" class="btn-icon wishlist-btn" title="Add to Wishlist">♡</button>
+                </div>
+
+                <div class="product-detail-meta">
+                    <p>Category: <span id="product-category">Loading...</span></p>
+                    <p>In Stock: <span id="product-stock">Loading...</span></p>
+                </div>
+
+                <div id="notification" class="notification"></div>
+            </div>
+        </div>
+
+        <div class="product-tabs">
+            <div class="tabs-header">
+                <button class="tab-btn active" data-tab="description">Description</button>
+                <button class="tab-btn" data-tab="details">Details</button>
+                <button class="tab-btn" data-tab="reviews">Reviews</button>
+            </div>
+
+            <div class="tabs-content">
+                <div class="tab-content active" id="description-tab">
+                    <div id="full-description">Loading full description...</div>
+                </div>
+
+                <div class="tab-content" id="details-tab">
+                    <div id="product-details">Loading product details...</div>
+                </div>
+
+                <div class="tab-content" id="reviews-tab">
+                    <div id="product-reviews">Loading reviews...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="related-products">
+            <h2 class="section-title">Related Products</h2>
+            <div class="product-grid" id="related-products">
+                <!-- Related products will be loaded here dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 3D Shop. All rights reserved.</p>
+    </footer>
+
+    <script src="/js/product-detail.js"></script>
+</body>
+
+</html>
