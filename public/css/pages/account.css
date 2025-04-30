@@ -1,0 +1,202 @@
+/* Account page specific styles */
+.account-container {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 2rem;
+    padding: 2rem;
+}
+
+.account-sidebar {
+    background-color: var(--color-dark-accent);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    height: fit-content;
+}
+
+.account-sidebar h2 {
+    margin-bottom: 1.5rem;
+    color: var(--color-text);
+}
+
+.account-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.account-nav a {
+    display: block;
+    padding: 0.75rem 1rem;
+    border-radius: var(--border-radius);
+    color: var(--color-text);
+    transition: background-color var(--transition-speed);
+}
+
+.account-nav a:hover,
+.account-nav a.active {
+    background-color: rgba(142, 45, 226, 0.2);
+    color: var(--color-primary);
+}
+
+.account-content {
+    background-color: var(--color-dark-accent);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+}
+
+.account-section {
+    display: none;
+}
+
+.account-section.active {
+    display: block;
+}
+
+.account-section h1 {
+    margin-bottom: 2rem;
+    color: var(--color-text);
+}
+
+.profile-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.profile-info label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--color-text);
+}
+
+.profile-info input {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: var(--color-darker);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    color: var(--color-text);
+}
+
+.order-card {
+    background-color: var(--color-darker);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.order-items {
+    margin-top: 1rem;
+}
+
+.order-item {
+    display: grid;
+    grid-template-columns: 60px 3fr 1fr;
+    gap: 1rem;
+    align-items: center;
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.order-item-image {
+    width: 60px;
+    height: 60px;
+    background-color: var(--color-darker);
+    border-radius: 4px;
+}
+
+.address-card {
+    background-color: var(--color-darker);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.address-actions {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.address-form {
+    display: none;
+    margin-top: 2rem;
+}
+
+.address-form.active {
+    display: block;
+}
+
+.address-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.form-group-full {
+    grid-column: 1 / 3;
+}
+
+.wishlist-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: var(--color-text-secondary);
+}
+
+.empty-state p {
+    margin-bottom: 1.5rem;
+}
+
+.message {
+    padding: 1rem;
+    margin: 1rem 0;
+    border-radius: var(--border-radius);
+}
+
+.message-success {
+    background-color: rgba(0, 255, 0, 0.1);
+    border: 1px solid rgba(0, 255, 0, 0.3);
+    color: #66ff66;
+}
+
+.message-error {
+    background-color: rgba(255, 0, 0, 0.1);
+    border: 1px solid rgba(255, 0, 0, 0.3);
+    color: #ff6666;
+}
+
+@media (max-width: 768px) {
+    .account-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .profile-info {
+        grid-template-columns: 1fr;
+    }
+    
+    .address-form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-group-full {
+        grid-column: auto;
+    }
+}
