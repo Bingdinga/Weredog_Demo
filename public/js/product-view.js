@@ -18,7 +18,7 @@ class ProductViewer {
   init() {
     // Create scene
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0xf5f5f5);
+    this.scene.background = new THREE.Color(0x121212);
     
     // Create camera
     const width = this.container.clientWidth;
@@ -70,7 +70,7 @@ class ProductViewer {
     loadingElement.style.top = '50%';
     loadingElement.style.left = '50%';
     loadingElement.style.transform = 'translate(-50%, -50%)';
-    loadingElement.style.color = '#666';
+    loadingElement.style.color = '#b3b3b3'; // Match --color-text-secondary
     loadingElement.style.fontFamily = 'Arial, sans-serif';
     loadingElement.style.fontSize = '14px';
     loadingElement.textContent = 'Loading 3D model...';
