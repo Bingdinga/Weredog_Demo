@@ -85,22 +85,6 @@ document.addEventListener('DOMContentLoaded', () => {
             mainA.textContent = category.name;
             mainA.dataset.category = category.category_id;
 
-            mainA.addEventListener('click', (e) => {
-                e.preventDefault();
-
-                // Remove active class from all category links
-                document.querySelectorAll('.category-item a').forEach(link => {
-                    link.classList.remove('active');
-                });
-
-                // Add active class to clicked link
-                mainA.classList.add('active');
-
-                currentCategory = category.category_id;
-                currentPage = 1;
-                displayProducts();
-            });
-
             mainLi.appendChild(mainA);
             categoryList.appendChild(mainLi);
 
@@ -118,28 +102,32 @@ document.addEventListener('DOMContentLoaded', () => {
                     subA.textContent = subcat.name;
                     subA.dataset.category = subcat.category_id;
 
-                    subA.addEventListener('click', (e) => {
-                        e.preventDefault();
-
-                        // Remove active class from all category links
-                        document.querySelectorAll('.category-item a').forEach(link => {
-                            link.classList.remove('active');
-                        });
-
-                        // Add active class to clicked link
-                        subA.classList.add('active');
-
-                        currentCategory = subcat.category_id;
-                        currentPage = 1;
-                        displayProducts();
-                    });
-
                     subLi.appendChild(subA);
                     subUl.appendChild(subLi);
                 });
 
                 categoryList.appendChild(subUl);
             }
+        });
+
+        // Add click handlers for all category links
+        document.querySelectorAll('.category-item a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+
+                // Remove active class from all category links
+                document.querySelectorAll('.category-item a').forEach(navLink => {
+                    navLink.classList.remove('active');
+                });
+
+                // Add active class to clicked link
+                link.classList.add('active');
+
+                // Set current category based on the data-category attribute
+                currentCategory = link.dataset.category;
+                currentPage = 1;
+                displayProducts();
+            });
         });
     }
 
@@ -160,10 +148,25 @@ document.addEventListener('DOMContentLoaded', () => {
         // Filter products
         let filteredProducts = products;
 
+
         // Filter by category
         if (currentCategory !== 'all') {
-            filteredProducts = filteredProducts.filter(product =>
-                product.category_id === parseInt(currentCategory));
+            // Convert currentCategory to number for comparison
+            const categoryId = parseInt(currentCategory, 10);
+
+            // Check if this is a main category
+            const mainCategory = categories.find(cat => cat.category_id == categoryId);
+
+            if (mainCategory && mainCategory.subcategories && mainCategory.subcategories.length > 0) {
+                // If it's a main category with subcategories, include products from all subcategories
+                const subcategoryIds = mainCategory.subcategories.map(subcat => subcat.category_id);
+                filteredProducts = filteredProducts.filter(product =>
+                    product.category_id == categoryId || subcategoryIds.includes(product.category_id));
+            } else {
+                // Otherwise just filter by the selected category
+                filteredProducts = filteredProducts.filter(product =>
+                    product.category_id == categoryId);
+            }
         }
 
         // Filter by price
