@@ -5,9 +5,12 @@
 /* Import Layout and Components */
 @import 'layout.css';
 @import 'components.css';
+@import 'auth.css';
 
 /* Import Page-Specific Styles */
 @import 'pages/home.css';
 @import 'pages/product.css';
 @import 'pages/cart.css';
 @import 'pages/admin.css';
+@import 'pages/products.css';
+

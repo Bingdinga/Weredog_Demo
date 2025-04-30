@@ -9,14 +9,22 @@ const authMiddleware = (req, res, next) => {
     return next();
   }
   
-  // Check if it's an API request
-  if (req.path.startsWith('/api/')) {
-    // Return 401 Unauthorized for API requests
-    return res.status(401).json({ error: 'Authentication required' });
+  // Check if it's an API request or AJAX request
+  const isApiRequest = req.path.startsWith('/api/') || 
+                        req.xhr || 
+                        req.headers.accept?.includes('application/json');
+  
+  if (isApiRequest) {
+    // Return 401 Unauthorized with JSON response for API requests
+    return res.status(401).json({ 
+      error: 'Authentication required',
+      redirectTo: '/login' // Include redirect info for client-side handling
+    });
   }
   
-  // For non-API requests, redirect to login page
-  res.redirect('/login');
+  // For non-API requests, redirect to login page with return URL
+  const returnUrl = encodeURIComponent(req.originalUrl || req.url);
+  res.redirect(`/login?redirect=${returnUrl}`);
 };
 
 module.exports = authMiddleware;

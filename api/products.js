@@ -14,6 +14,34 @@ router.get('/', (req, res) => {
   }
 });
 
+// Get all categories
+router.get('/categories', (req, res) => {
+  try {
+    // First, get main categories
+    const mainCategories = db.prepare(`
+      SELECT category_id, name, description 
+      FROM categories 
+      WHERE parent_id IS NULL
+      ORDER BY name
+    `).all();
+
+    // Then get subcategories for each main category
+    for (const category of mainCategories) {
+      category.subcategories = db.prepare(`
+        SELECT category_id, name, description 
+        FROM categories 
+        WHERE parent_id = ?
+        ORDER BY name
+      `).all(category.category_id);
+    }
+
+    res.json(mainCategories);
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    res.status(500).json({ error: 'Failed to fetch categories' });
+  }
+});
+
 // Get featured products
 router.get('/featured', (req, res) => {
   try {
@@ -25,7 +53,7 @@ router.get('/featured', (req, res) => {
       LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_primary = 1
       LIMIT 4
     `).all();
-    
+
     res.json(featuredProducts);
   } catch (error) {
     console.error('Error fetching featured products:', error);
@@ -37,23 +65,23 @@ router.get('/featured', (req, res) => {
 router.get('/:id', (req, res) => {
   try {
     const productId = req.params.id;
-    
+
     // Get product details
     const product = db.prepare('SELECT * FROM products WHERE product_id = ?').get(productId);
-    
+
     if (!product) {
       return res.status(404).json({ error: 'Product not found' });
     }
-    
+
     // Get product images
     const images = db.prepare('SELECT * FROM product_images WHERE product_id = ?').all(productId);
-    
+
     // Get product models with appropriate resolution
     const resolution = getOptimalModelResolution(req);
     const models = db.prepare(
       'SELECT * FROM product_models WHERE product_id = ? AND resolution = ?'
     ).all(productId, resolution);
-    
+
     // Return combined product data
     res.json({
       ...product,
@@ -70,14 +98,14 @@ router.get('/:id', (req, res) => {
 router.get('/search/:query', (req, res) => {
   try {
     const searchQuery = `%${req.params.query}%`;
-    
+
     const products = db.prepare(`
       SELECT p.*, pi.image_path 
       FROM products p
       LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_primary = 1
       WHERE p.name LIKE ? OR p.description LIKE ?
     `).all(searchQuery, searchQuery);
-    
+
     res.json(products);
   } catch (error) {
     console.error('Error searching products:', error);
@@ -89,14 +117,14 @@ router.get('/search/:query', (req, res) => {
 router.get('/category/:categoryId', (req, res) => {
   try {
     const categoryId = req.params.categoryId;
-    
+
     const products = db.prepare(`
       SELECT p.*, pi.image_path 
       FROM products p
       LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_primary = 1
       WHERE p.category_id = ?
     `).all(categoryId);
-    
+
     res.json(products);
   } catch (error) {
     console.error('Error fetching products by category:', error);

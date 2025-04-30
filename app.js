@@ -78,6 +78,16 @@ app.get('/product/:id', (req, res) => {
   res.sendFile(path.join(__dirname, 'views/product-detail.html'));
 });
 
+// Login page
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views/login.html'));
+});
+
+// Register page
+app.get('/register', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views/register.html'));
+});
+
 app.get('/cart', (req, res) => {
   res.sendFile(path.join(__dirname, 'views/cart.html'));
 });
