@@ -12,6 +12,9 @@ pids
 # Dependency directories
 node_modules/
 
+# Three.js
+public/js/lib/three
+
 # Environment variables
 .env
 
