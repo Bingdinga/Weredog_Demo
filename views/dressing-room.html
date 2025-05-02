@@ -7,9 +7,10 @@
     <title>3D Dressing Room | Weredog Demo</title>
     <link rel="stylesheet" href="/css/main.css">
     <script src="/js/lib/three/three.min.js"></script>
+    <!-- Add this line to ensure THREE is global -->
+    <script>window.THREE = THREE;</script>
     <script src="/js/lib/three/GLTFLoader.js"></script>
-    <script src="/js/lib/three/threejs-orbit-controls.umd.min.js"></script>
-</head>
+    <script src="/js/lib/three/OrbitControls.js"></script></head>
 
 <body>
     <header>
@@ -31,14 +32,14 @@
         <div class="dressing-room-controls">
             <h1>3D Dressing Room</h1>
             <p>Visualize products on a mannequin model.</p>
-            
+
             <div class="control-group">
                 <label for="product-select">Select Product:</label>
                 <select id="product-select" class="product-dropdown">
                     <option value="">Loading products...</option>
                 </select>
             </div>
-            
+
             <div class="product-info" id="product-info">
                 <h2>Product Information</h2>
                 <p id="product-name">Select a product to see details</p>
@@ -46,17 +47,18 @@
                 <div id="product-description"></div>
                 <a id="product-link" class="btn" style="display: none;">View Product Details</a>
             </div>
-            
+
             <div class="control-group">
                 <h3>Movement Controls</h3>
                 <p>Use arrow keys to move the product around the mannequin.</p>
                 <p>Use WASD keys to rotate the product.</p>
+                <p>Use left mouse to rotate the camera, right to dolly, and scroll to zoom.</p>
                 <div class="control-buttons">
                     <button id="reset-position" class="btn">Reset Position</button>
                 </div>
             </div>
         </div>
-        
+
         <div class="dressing-room-viewer">
             <div id="dressing-room-canvas"></div>
             <div id="loading-overlay" class="loading-overlay">

@@ -104,6 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Add orbit controls if available, otherwise skip
         if (typeof THREE.OrbitControls === 'function') {
+            // Use THREE.OrbitControls since we added it to the THREE namespace
             controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
             controls.dampingFactor = 0.25;
@@ -112,7 +113,8 @@ document.addEventListener('DOMContentLoaded', () => {
             controls.minDistance = 1;
             controls.maxDistance = 10;
         } else {
-            // Create a simple controls object with update method to avoid errors
+            // Fallback if something still goes wrong
+            console.warn('OrbitControls not available. Using basic camera controls instead.');
             controls = { update: function () { } };
         }
 
@@ -144,6 +146,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 mannequin.position.x = -center.x;
                 mannequin.position.y = 0; // Keep the feet on the ground
                 mannequin.position.z = -center.z;
+
+                scale = 0.3;
+                mannequin.scale.set(scale, scale, scale);
 
                 // Set up shadows
                 mannequin.traverse(node => {
@@ -310,6 +315,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Load product model
         loadProduct(selectedProduct.modelPath);
+
+        // NEW CODE: Blur the dropdown to remove focus after selection
+        productSelect.blur();
+
+        // Optional: Also focus on the canvas to ensure keyboard events go there
+        canvas.focus();
     }
 
     // Load product model
@@ -355,7 +366,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!product) return;
 
         // Reset product position and rotation
-        product.position.set(0, 1.2, 0); // Default position at torso height
+        product.position.set(0, 0.7, 0.8); // Default position at torso height
         product.rotation.set(0, 0, 0);
 
         // Scale product appropriately
@@ -365,10 +376,16 @@ document.addEventListener('DOMContentLoaded', () => {
         // Calculate scale to make product reasonable size relative to mannequin
         // This is a simplified approach - you might need to adjust for specific products
         const maxDim = Math.max(size.x, size.y, size.z);
-        const targetSize = 0.5; // Target maximum dimension in meters
+
+        // Use a much smaller target size to prevent the product from being too large
+        // Adjust this value based on your mannequin size
+        const targetSize = 0.5; // Reduced from 0.5 to 0.3 - adjust as needed
+
         const scale = targetSize / maxDim;
 
         product.scale.set(scale, scale, scale);
+
+        console.log(`Product size: ${size.x.toFixed(2)} x ${size.y.toFixed(2)} x ${size.z.toFixed(2)}, Scale: ${scale.toFixed(4)}`);
     }
 
     // Handle movement with arrow keys
@@ -417,7 +434,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // Reset product position
     function resetProductPosition() {
         if (product) {
-            positionProductOnMannequin();
+            // First remove the product from the scene to clear any transformations
+            scene.remove(product);
+
+            // Then reload the current product
+            const selectedProduct = productModels[currentProductId];
+            if (selectedProduct && selectedProduct.modelPath) {
+                // Show loading overlay
+                loadingOverlay.classList.remove('hide');
+
+                // Load product again (this will position it correctly)
+                loadProduct(selectedProduct.modelPath);
+            } else {
+                console.error('Cannot reset product: no valid product selected');
+            }
         }
     }
 
