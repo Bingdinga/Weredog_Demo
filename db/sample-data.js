@@ -111,20 +111,20 @@ const seedDatabase = () => {
       // Penetrables - Realistic (3 products)
       {
         name: 'Realistic Stroker Pro',
-        description: 'Premium realistic stroker with textured internal canal, dual-density silicone for a lifelike feel, and discreet case for storage.',
+        description: 'Premium realistic stroker with textured internal canal, dual-density silicone for a lifelike feel. CREDIT: https://cults3d.com/en/3d-model/naughties/woman-s-ass-piece',
         price: 79.99,
         stock_quantity: 50,
         category_id: categoryIds['Realistic'],
         images: ['/img/stroker_front.jpg', '/img/stroker_detail.jpg', '/img/stroker_case.jpg'],
         models: [
-          { resolution: 'high', path: '/models/high/realistic_stroker.glb', file_size: 3072 },
+          { resolution: 'high', path: '/models/high/WOMAN_ASS_PIECE.glb', file_size: 3072 },
           { resolution: 'medium', path: '/models/medium/realistic_stroker.glb', file_size: 1536 },
           { resolution: 'low', path: '/models/low/realistic_stroker.glb', file_size: 768 }
         ]
       },
       {
         name: 'Anatomical Texture Sleeve',
-        description: 'Anatomically correct sleeve with varied internal textures. Made from body-safe silicone with an open-ended design for easy cleaning.',
+        description: 'Anatomically correct sleeve with varied internal textures. Made from body-safe silicone with an open-ended design for easy cleaning. \n\n CREDIT: https://cults3d.com/en/3d-model/naughties/minette7-cbo',
         price: 64.99,
         stock_quantity: 35,
         category_id: categoryIds['Realistic'],
@@ -137,7 +137,7 @@ const seedDatabase = () => {
       },
       {
         name: 'Dual-Density Stroker',
-        description: 'Features our innovative dual-density technology with firm outer layer and soft inner core for the most realistic sensation possible.',
+        description: 'Features our innovative dual-density technology with firm outer layer and soft inner core for the most realistic sensation possible. CREDIT: https://cults3d.com/en/3d-model/naughties/masturbator-nubs',
         price: 89.99,
         stock_quantity: 25,
         category_id: categoryIds['Realistic'],
@@ -152,7 +152,7 @@ const seedDatabase = () => {
       // Penetrables - Fantasy (3 products)
       {
         name: 'Dragon\'s Lair',
-        description: 'Fantasy dragon-inspired stroker with unique textured interior, made from body-safe platinum-cure silicone with a mesmerizing color scheme.',
+        description: 'Fantasy dragon-inspired stroker with unique textured interior, made from body-safe platinum-cure silicone with a mesmerizing color scheme. CREDIT: https://cults3d.com/en/3d-model/naughties/framed-butt',
         price: 89.99,
         stock_quantity: 30,
         category_id: categoryIds['Fantasy'],
@@ -165,26 +165,26 @@ const seedDatabase = () => {
       },
       {
         name: 'Mermaid\'s Grotto',
-        description: 'Dive into fantasy with this oceanic-inspired design featuring unique wave-like textures and pearlescent color shifting material.',
+        description: 'Dive into fantasy with this oceanic-inspired design featuring unique wave-like textures and pearlescent color shifting material. CREDIT: https://cults3d.com/en/3d-model/naughties/female-mermaid-nsfw',
         price: 94.99,
         stock_quantity: 20,
         category_id: categoryIds['Fantasy'],
         images: ['/img/mermaid_top.jpg', '/img/mermaid_side.jpg', '/img/mermaid_texture.jpg'],
         models: [
-          { resolution: 'high', path: '/models/high/mermaid_grotto.glb', file_size: 3900 },
+          { resolution: 'high', path: '/models/high/Mermaid_NSFW.glb', file_size: 3900 },
           { resolution: 'medium', path: '/models/medium/mermaid_grotto.glb', file_size: 1950 },
           { resolution: 'low', path: '/models/low/mermaid_grotto.glb', file_size: 975 }
         ]
       },
       {
         name: 'Alien Cavern',
-        description: 'Out-of-this-world sensations with alien-inspired textures and bioluminescent glow-in-the-dark material for an otherworldly experience.',
+        description: 'Out-of-this-world sensations with alien-inspired textures and bioluminescent glow-in-the-dark material for an otherworldly experience. CREDIT: https://cults3d.com/en/3d-model/naughties/female-sci-fi-bust',
         price: 99.99,
         stock_quantity: 15,
         category_id: categoryIds['Fantasy'],
         images: ['/img/alien_main.jpg', '/img/alien_glow.jpg', '/img/alien_texture.jpg'],
         models: [
-          { resolution: 'high', path: '/models/high/alien_cavern.glb', file_size: 4200 },
+          { resolution: 'high', path: '/models/high/Female_Sci_Bust.glb', file_size: 4200 },
           { resolution: 'medium', path: '/models/medium/alien_cavern.glb', file_size: 2100 },
           { resolution: 'low', path: '/models/low/alien_cavern.glb', file_size: 1050 }
         ]
@@ -281,7 +281,7 @@ const seedDatabase = () => {
         category_id: categoryIds['Fantasy Dildos'],
         images: ['/img/mystic_front.jpg', '/img/mystic_side.jpg', '/img/mystic_detail.jpg'],
         models: [
-          { resolution: 'high', path: '/models/high/mystic_dildo.glb', file_size: 4608 },
+          { resolution: 'high', path: '/models/high/ripple_ridge.glb', file_size: 4608 },
           { resolution: 'medium', path: '/models/medium/mystic_dildo.glb', file_size: 2304 },
           { resolution: 'low', path: '/models/low/mystic_dildo.glb', file_size: 1152 }
         ]
@@ -294,7 +294,7 @@ const seedDatabase = () => {
         category_id: categoryIds['Fantasy Dildos'],
         images: ['/img/tentacle_front.jpg', '/img/tentacle_curve.jpg', '/img/tentacle_detail.jpg'],
         models: [
-          { resolution: 'high', path: '/models/high/tentacle_dildo.glb', file_size: 4800 },
+          { resolution: 'high', path: '/models/high/tentacle_with_base.glb', file_size: 4800 },
           { resolution: 'medium', path: '/models/medium/tentacle_dildo.glb', file_size: 2400 },
           { resolution: 'low', path: '/models/low/tentacle_dildo.glb', file_size: 1200 }
         ]

@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Check if GLTFLoader is available
         if (THREE.GLTFLoader) {
             // Try to load a real model
-            const modelPath = '/models/high/default_placeholder.glb'; // Use a default model path
+            const modelPath = '/models/high/ripple_ridge.glb'; // Use a default model path
             const loader = new THREE.GLTFLoader();
 
             loader.load(
