@@ -192,7 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Get the maximum dimension
                 const maxDim = Math.max(size.x, size.y, size.z);
-                const scaleFactor = 2 / maxDim;
+                const scaleFactor = 5 / maxDim;
 
                 model.scale.set(scaleFactor, scaleFactor, scaleFactor);
                 model.position.sub(center.multiplyScalar(scaleFactor));
@@ -469,7 +469,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Get the maximum dimension
                 const maxDim = Math.max(size.x, size.y, size.z);
-                const scaleFactor = 2 / maxDim;
+                const scaleFactor = 5 / maxDim;
 
                 model.scale.set(scaleFactor, scaleFactor, scaleFactor);
                 model.position.sub(center.multiplyScalar(scaleFactor));

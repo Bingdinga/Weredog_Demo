@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Weredog Demo</title>
     <link rel="stylesheet" href="/css/main.css">
+    <script src="/js/lib/three/three.min.js"></script>
+    <script src="/js/lib/three/GLTFLoader.js"></script>
 </head>
+
 <body>
     <header>
         <nav>
@@ -18,11 +22,12 @@
             </ul>
         </nav>
     </header>
-    
+
     <section class="hero">
         <div class="hero-content">
             <h1>Experience Products in 3D</h1>
-            <p>Explore our products like never before with interactive 3D visualization. Rotate, zoom, and see every detail before you buy.</p>
+            <p>Explore our products like never before with interactive 3D visualization. Rotate, zoom, and see every
+                detail before you buy.</p>
             <a href="/products" class="btn">Shop Now</a>
         </div>
         <div class="hero-image">
@@ -32,70 +37,27 @@
             </div>
         </div>
     </section>
-    
+
     <section class="featured-products">
         <h2 class="section-title">Featured Products</h2>
         <div class="product-grid">
             <!-- Products will be dynamically loaded here -->
-            <div class="product-card">
-                <div class="product-image">
-                    <p>Product Image</p>
-                </div>
-                <div class="product-info">
-                    <h3 class="product-title">Product Name</h3>
-                    <p class="product-price">$99.99</p>
-                    <a href="/product/1" class="btn">View Details</a>
-                </div>
-            </div>
-            
-            <div class="product-card">
-                <div class="product-image">
-                    <p>Product Image</p>
-                </div>
-                <div class="product-info">
-                    <h3 class="product-title">Product Name</h3>
-                    <p class="product-price">$99.99</p>
-                    <a href="/product/2" class="btn">View Details</a>
-                </div>
-            </div>
-            
-            <div class="product-card">
-                <div class="product-image">
-                    <p>Product Image</p>
-                </div>
-                <div class="product-info">
-                    <h3 class="product-title">Product Name</h3>
-                    <p class="product-price">$99.99</p>
-                    <a href="/product/3" class="btn">View Details</a>
-                </div>
-            </div>
-            
-            <div class="product-card">
-                <div class="product-image">
-                    <p>Product Image</p>
-                </div>
-                <div class="product-info">
-                    <h3 class="product-title">Product Name</h3>
-                    <p class="product-price">$99.99</p>
-                    <a href="/product/4" class="btn">View Details</a>
-                </div>
-            </div>
         </div>
     </section>
-    
+
     <section class="cta-section">
         <h2>Ready to experience shopping in 3D?</h2>
         <p>Create an account today and get 10% off your first order.</p>
         <a href="/register" class="btn btn-light">Sign Up Now</a>
     </section>
-    
+
     <footer>
         <p>&copy; 2025 Weredog Demo. All rights reserved.</p>
     </footer>
-    
+
     <script>
         // JavaScript for home page functionality
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Load featured products from API
             fetch('/api/products/featured')
                 .then(response => response.json())
@@ -103,13 +65,13 @@
                     if (products && products.length > 0) {
                         const productGrid = document.querySelector('.product-grid');
                         productGrid.innerHTML = ''; // Clear placeholder
-                        
+
                         products.forEach(product => {
                             const productCard = document.createElement('div');
                             productCard.className = 'product-card';
-                            
+
                             const imagePath = product.image_path || '/img/placeholder.png';
-                            
+
                             productCard.innerHTML = `
                                 <div class="product-image">
                                     <img src="${imagePath}" alt="${product.name}">
@@ -120,7 +82,7 @@
                                     <a href="/product/${product.product_id}" class="btn">View Details</a>
                                 </div>
                             `;
-                            
+
                             productGrid.appendChild(productCard);
                         });
                     }
@@ -130,5 +92,142 @@
                 });
         });
     </script>
+    // Add this script block at the end of your home.html file, right before the closing body tag
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Check if Three.js is available
+            if (typeof THREE === 'undefined') {
+                // If Three.js is not loaded, add the required scripts
+                const threeScript = document.createElement('script');
+                threeScript.src = '/js/lib/three/three.min.js';
+                document.head.appendChild(threeScript);
+
+                const loaderScript = document.createElement('script');
+                loaderScript.src = '/js/lib/three/GLTFLoader.js';
+
+                threeScript.onload = function () {
+                    document.head.appendChild(loaderScript);
+                    loaderScript.onload = initHero3DViewer;
+                };
+            } else {
+                // If Three.js is already loaded, initialize the viewer
+                initHero3DViewer();
+            }
+
+            // Function to initialize the 3D viewer
+            function initHero3DViewer() {
+                const container = document.getElementById('hero-3d-container');
+
+                // Clear the loading text
+                container.innerHTML = '';
+
+                // Create scene
+                const scene = new THREE.Scene();
+                scene.background = new THREE.Color(0x121212);
+
+                // Create camera
+                const width = container.clientWidth;
+                const height = container.clientHeight;
+                const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+                camera.position.z = 5;
+
+                // Create renderer
+                const renderer = new THREE.WebGLRenderer({ antialias: true });
+                renderer.setSize(width, height);
+                renderer.setPixelRatio(window.devicePixelRatio);
+                container.appendChild(renderer.domElement);
+
+                // Add lights
+                const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+                scene.add(ambientLight);
+
+                const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+                directionalLight.position.set(1, 1, 1).normalize();
+                scene.add(directionalLight);
+
+                // Create a simple shape to display
+                let model;
+
+                // Check if GLTFLoader is available
+                if (THREE.GLTFLoader) {
+                    // Try to load a real model
+                    const modelPath = '/models/high/default_placeholder.glb'; // Use a default model path
+                    const loader = new THREE.GLTFLoader();
+
+                    loader.load(
+                        modelPath,
+                        (gltf) => {
+                            model = gltf.scene;
+                            scene.add(model);
+
+                            // Center and scale the model
+                            const box = new THREE.Box3().setFromObject(model);
+                            const center = box.getCenter(new THREE.Vector3());
+                            const size = box.getSize(new THREE.Vector3());
+
+                            // Get the maximum dimension
+                            const maxDim = Math.max(size.x, size.y, size.z);
+                            const scaleFactor = 5 / maxDim;
+
+                            model.scale.set(scaleFactor, scaleFactor, scaleFactor);
+                            model.position.sub(center.multiplyScalar(scaleFactor));
+
+                            // Rotate the model a bit
+                            model.rotation.y = Math.PI / 4;
+                        },
+                        undefined,
+                        (error) => {
+                            console.error('Error loading model:', error);
+                            createFallbackModel();
+                        }
+                    );
+                } else {
+                    createFallbackModel();
+                }
+
+                // Fallback to creating a simple geometric shape
+                function createFallbackModel() {
+                    // Create a simple cube as fallback
+                    const geometry = new THREE.BoxGeometry(2, 2, 2);
+                    const material = new THREE.MeshStandardMaterial({
+                        color: 0x8e2de2, // Purple color matching the site theme
+                        roughness: 0.7,
+                        metalness: 0.3
+                    });
+                    model = new THREE.Mesh(geometry, material);
+                    scene.add(model);
+                }
+
+                // Animation loop
+                function animate() {
+                    requestAnimationFrame(animate);
+
+                    // Rotate the model if it exists
+                    if (model) {
+                        model.rotation.y += 0.005;
+                    }
+
+                    renderer.render(scene, camera);
+                }
+
+                // Handle window resize
+                window.addEventListener('resize', function () {
+                    const width = container.clientWidth;
+                    const height = container.clientHeight;
+
+                    camera.aspect = width / height;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(width, height);
+                });
+
+                // Start the animation loop
+                animate();
+            }
+        });
+    </script>
+    <a href="#" class="back-to-top" id="backToTop">↑</a>
+    <script src="/js/layout.js"></script>d
 </body>
+
 </html>

@@ -3,17 +3,27 @@
     background-color: var(--color-darker);
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
+    /* Changed from space-between to center */
     padding: 4rem 2rem;
+    gap: 2rem;
+    /* Add gap between the elements */
+    max-width: 1200px;
+    /* Maximum width */
+    margin: 0 auto;
+    /* Center the whole section */
 }
 
 .hero-content {
     flex: 1;
     padding-right: 2rem;
+    max-width: 500px;
+    justify-content: center;
+    text-align: center;
 }
 
 .hero h1 {
-    font-size: 2.5rem;
+    font-size: 2.3rem;
     margin-bottom: 1rem;
     color: var(--color-text);
 }
@@ -22,11 +32,15 @@
     font-size: 1.1rem;
     margin-bottom: 2rem;
     color: var(--color-text-secondary);
+    justify-content: center;
+    text-align: center;
 }
 
 .hero-image {
     flex: 1;
     text-align: center;
+    display: flex;
+    justify-content: center;
 }
 
 /* Featured Products */
