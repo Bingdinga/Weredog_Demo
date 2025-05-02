@@ -9,21 +9,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const productCategory = document.getElementById('product-category');
     const productStock = document.getElementById('product-stock');
     const modelLoadingOverlay = document.getElementById('model-loading-overlay');
-    // const fullscreenToggle = document.getElementById('fullscreen-toggle');
     const productViewer = document.getElementById('product-viewer');
+    const cycleResolutionBtn = document.getElementById('cycle-resolution');
 
-    // Get expand/collapse icons
+    if (cycleResolutionBtn) {
+        cycleResolutionBtn.addEventListener('click', cycleResolution);
+        console.log('Added click listener to cycle resolution button');
+    } else {
+        console.error('Cycle resolution button not found');
+    }
+
+    // Load product data
+    loadProductData();
 
     // Scene variables
     let scene, camera, renderer, model;
     let isDragging = false;
     let isFullscreen = false;
     let previousMousePosition = { x: 0, y: 0 };
+    let userHasInteracted = false;
+
+    let currentModelResolution = 'high';
+    let productModels = {}; // Will store model paths for each resolution
+    let modelLoadAttemptInProgress = false;
 
     console.log('Three.js loaded successfully');
 
-    // Load product data
-    loadProductData();
+
 
     // Add fullscreen toggle functionality
     // fullscreenToggle.addEventListener('click', toggleFullscreen);
@@ -59,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return response.json();
             })
             .then(product => {
-                // Set product details
+                // Set product details - existing code remains the same
                 document.title = `${product.name} | Weredog Demo`;
                 productName.textContent = product.name;
                 productPrice.textContent = `$${product.price.toFixed(2)}`;
@@ -68,16 +80,37 @@ document.addEventListener('DOMContentLoaded', () => {
                     ? `${product.stock_quantity} items`
                     : 'Out of stock';
 
-                // Check if we have valid models
+                // Store models by resolution
                 if (product.models && product.models.length > 0) {
-                    const modelPath = product.models[0].model_path;
-                    console.log('Loading model from path:', modelPath);
+                    // Group models by resolution
+                    product.models.forEach(model => {
+                        productModels[model.resolution] = model.model_path;
+                    });
 
-                    // Verify that THREE and GLTFLoader are loaded
-                    if (window.THREE && window.THREE.GLTFLoader) {
-                        init3DViewer(modelPath);
+                    console.log('Available model resolutions:', Object.keys(productModels));
+
+                    // Default to high resolution if available, otherwise use the first available
+                    currentModelResolution = 'high' in productModels ? 'high' :
+                        ('medium' in productModels ? 'medium' :
+                            ('low' in productModels ? 'low' : null));
+
+                    // Update resolution button text
+                    updateResolutionButton();
+
+                    // If we have a valid resolution, load the model
+                    if (currentModelResolution) {
+                        const modelPath = productModels[currentModelResolution];
+                        console.log('Loading model from path:', modelPath);
+
+                        // Verify that THREE and GLTFLoader are loaded
+                        if (window.THREE && window.THREE.GLTFLoader) {
+                            init3DViewer(modelPath);
+                        } else {
+                            console.error('THREE.js or GLTFLoader not available');
+                            initSimple3DViewer();
+                        }
                     } else {
-                        console.error('THREE.js or GLTFLoader not available');
+                        console.log('No models available for this product, using simple viewer');
                         initSimple3DViewer();
                     }
                 } else {
@@ -86,6 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             })
             .catch(error => {
+                // Error handling - existing code remains the same
                 console.error('Error loading product:', error);
                 productDescription.textContent = 'Error loading product details.';
 
@@ -98,6 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 initSimple3DViewer();
             });
     }
+
 
     // Initialize 3D viewer with GLB model
     function init3DViewer(modelPath) {
@@ -130,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
         scene.add(ambientLight);
 
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1.8);
         directionalLight.position.set(1, 1, 1).normalize();
         scene.add(directionalLight);
 
@@ -256,6 +291,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Mouse events
         productViewer.addEventListener('mousedown', (e) => {
             isDragging = true;
+            userHasInteracted = true;
             previousMousePosition = {
                 x: e.clientX,
                 y: e.clientY
@@ -305,8 +341,8 @@ document.addEventListener('DOMContentLoaded', () => {
         requestAnimationFrame(animate);
 
         // Add slight auto-rotation when not dragging
-        if (model && !isDragging) {
-            model.rotation.y += 0.005;
+        if (model && !isDragging && !userHasInteracted) {
+            model.rotation.y += 0.001; // Reduced from 0.005 to 0.001 for slower rotation
         }
 
         // Render scene
@@ -328,6 +364,145 @@ document.addEventListener('DOMContentLoaded', () => {
         renderer.setSize(width, height);
 
         console.log('Resized to:', width, height);
+    }
+
+    function updateResolutionButton() {
+        if (cycleResolutionBtn) {
+            switch (currentModelResolution) {
+                case 'high':
+                    cycleResolutionBtn.textContent = 'HD';
+                    break;
+                case 'medium':
+                    cycleResolutionBtn.textContent = 'MD';
+                    break;
+                case 'low':
+                    cycleResolutionBtn.textContent = 'LO';
+                    break;
+                default:
+                    cycleResolutionBtn.textContent = '??';
+            }
+        }
+    }
+
+    function cycleResolution() {
+        console.log('Cycle resolution clicked, current resolution:', currentModelResolution);
+        console.log('Available models from API:', productModels);
+
+        if (modelLoadAttemptInProgress) {
+            console.log('Model load attempt already in progress, ignoring click');
+            return;
+        }
+        const resolutions = ['high', 'medium', 'low'];
+        // const availableResolutions = resolutions.filter(res => res in productModels);
+
+        // if (availableResolutions.length <= 1) {
+        //     console.log('Only one resolution available, nothing to cycle');
+        //     return; // No other resolutions to cycle through
+        // }
+
+        // Find current index
+        const currentIndex = resolutions.indexOf(currentModelResolution);
+
+        // Get next resolution (cycle back to beginning if at the end)
+        const nextIndex = (currentIndex + 1) % resolutions.length;
+        const nextResolution = resolutions[nextIndex];
+
+
+        console.log('Attempting to switch to resolution:', nextResolution);
+
+        // Update button right away to provide feedback
+        const cycleResolutionBtn = document.getElementById('cycle-resolution');
+        if (cycleResolutionBtn) {
+            cycleResolutionBtn.textContent = nextResolution === 'high' ? 'HD' :
+                nextResolution === 'medium' ? 'MD' : 'LO';
+        }
+
+        // Show loading overlay again
+        const modelLoadingOverlay = document.getElementById('model-loading-overlay');
+        if (modelLoadingOverlay) {
+            modelLoadingOverlay.classList.remove('hide');
+        }
+
+        // Load the new model
+        const modelPath = productModels[nextResolution] ||
+            `/models/${nextResolution}/default_placeholder.glb`;
+
+        console.log(`Attempting to load ${nextResolution} resolution from:`, modelPath);
+
+        // Set the flag to prevent multiple simultaneous load attempts
+        modelLoadAttemptInProgress = true;
+
+        // Clear the current scene
+        if (model && scene) {
+            scene.remove(model);
+            model = null;
+        }
+
+        // Load the new model
+        tryLoadModel(modelPath, nextResolution);
+    }
+
+    function tryLoadModel(modelPath, resolution) {
+        // Create a new loader
+        const loader = new THREE.GLTFLoader();
+
+        loader.load(
+            modelPath,
+            (gltf) => {
+                // Model loaded successfully
+                console.log(`${resolution} resolution model loaded successfully`);
+
+                // Update current resolution
+                currentModelResolution = resolution;
+
+                // Store this path in productModels for future reference
+                productModels[resolution] = modelPath;
+
+                // Update the scene with the new model
+                model = gltf.scene;
+                scene.add(model);
+
+                // Center and scale the model
+                const box = new THREE.Box3().setFromObject(model);
+                const center = box.getCenter(new THREE.Vector3());
+                const size = box.getSize(new THREE.Vector3());
+
+                // Get the maximum dimension
+                const maxDim = Math.max(size.x, size.y, size.z);
+                const scaleFactor = 2 / maxDim;
+
+                model.scale.set(scaleFactor, scaleFactor, scaleFactor);
+                model.position.sub(center.multiplyScalar(scaleFactor));
+
+                // Hide loading overlay
+                const modelLoadingOverlay = document.getElementById('model-loading-overlay');
+                if (modelLoadingOverlay) {
+                    modelLoadingOverlay.classList.add('hide');
+                }
+
+                // Reset the flag
+                modelLoadAttemptInProgress = false;
+            },
+            (progress) => {
+                // Loading progress - could add a progress indicator here
+            },
+            (error) => {
+                // Error handling - try next resolution if this one failed
+                console.error(`Error loading ${resolution} resolution model:`, error);
+
+                // Reset the flag
+                modelLoadAttemptInProgress = false;
+
+                // Hide loading overlay
+                const modelLoadingOverlay = document.getElementById('model-loading-overlay');
+                if (modelLoadingOverlay) {
+                    modelLoadingOverlay.classList.add('hide');
+                }
+
+                // Log available resolutions
+                console.log('Currently available models:', Object.keys(productModels));
+            }
+        );
     }
 
     // Quantity controls
