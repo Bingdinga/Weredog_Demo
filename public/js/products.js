@@ -1,4 +1,29 @@
 document.addEventListener('DOMContentLoaded', () => {
+
+    // Check if THREE.js is available and load it if not
+    if (typeof THREE === 'undefined') {
+        // Load Three.js scripts
+        loadScript('/js/lib/three/three.min.js')
+            .then(() => loadScript('/js/lib/three/GLTFLoader.js'))
+            .then(() => {
+                console.log('Three.js loaded successfully');
+            })
+            .catch(error => {
+                console.error('Error loading Three.js:', error);
+            });
+    }
+
+    // Helper function to load scripts
+    function loadScript(src) {
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = src;
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
+    }
+
     // Elements
     const productsGrid = document.getElementById('products-grid');
     const categoryList = document.getElementById('category-list');
@@ -216,10 +241,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const productCard = productCardTemplate.content.cloneNode(true);
 
             // Set product data
-            const productImage = productCard.querySelector('.product-image img');
-            productImage.src = product.image_path || '/img/placeholder.svg';
-            productImage.alt = product.name;
-
             productCard.querySelector('.product-title').textContent = product.name;
             productCard.querySelector('.product-price').textContent = `$${product.price.toFixed(2)}`;
             productCard.querySelector('.product-actions a').href = `/product/${product.product_id}`;
@@ -229,7 +250,17 @@ document.addEventListener('DOMContentLoaded', () => {
             wishlistBtn.dataset.productId = product.product_id;
             wishlistBtn.addEventListener('click', () => toggleWishlist(product.product_id));
 
+            // Initialize 3D model container
+            const modelContainer = productCard.querySelector('.product-model-container');
+            modelContainer.id = `product-model-${product.product_id}`;
+
             productsGrid.appendChild(productCard);
+
+            // Initialize 3D model after the card is added to the DOM
+            // Use a small delay to ensure DOM is updated
+            setTimeout(() => {
+                new ProductCardModel(document.getElementById(`product-model-${product.product_id}`), product.product_id);
+            }, 10);
         });
 
         // Render pagination
@@ -376,4 +407,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize wishlist status check
     setTimeout(checkWishlistStatus, 1000); // Delay slightly to allow products to render first
+
+    // Clean up 3D models when leaving the page
+    window.addEventListener('unload', () => {
+        // Find all model containers and dispose of their 3D contexts
+        document.querySelectorAll('.product-model-container').forEach(container => {
+            if (container.modelRenderer) {
+                container.modelRenderer.dispose();
+            }
+        });
+    });
 });

@@ -87,8 +87,8 @@
     <!-- Product card template for JavaScript -->
     <template id="product-card-template">
         <div class="product-card">
-            <div class="product-image">
-                <img src="" alt="">
+            <div class="product-model-container" style="height: 200px;">
+                <!-- 3D model will be rendered here -->
             </div>
             <div class="product-info">
                 <h3 class="product-title"></h3>
@@ -101,6 +101,9 @@
         </div>
     </template>
 
+    <script src="/js/lib/three/three.min.js"></script>
+    <script src="/js/lib/three/GLTFLoader.js"></script>
+    <script src="/js/product-card-model.js"></script>
     <script src="/js/products.js"></script>
     <a href="#" class="back-to-top" id="backToTop">↑</a>
     <script src="/js/layout.js"></script>
