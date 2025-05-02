@@ -93,6 +93,10 @@ app.get('/cart', (req, res) => {
   res.sendFile(path.join(__dirname, 'views/cart.html'));
 });
 
+app.get('/dressing-room', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views/dressing-room.html'));
+});
+
 app.get('/wishlist', authMiddleware, (req, res) => {
   res.sendFile(path.join(__dirname, 'views/wishlist.html'));
 });

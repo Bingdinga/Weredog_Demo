@@ -61,6 +61,7 @@
     width: 100%;
     background-color: var(--color-darker);
     -webkit-appearance: none;
+    appearance: none;
     height: 6px;
     border-radius: 3px;
 }

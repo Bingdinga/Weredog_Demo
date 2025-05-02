@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Dressing Room | Weredog Demo</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <script src="/js/lib/three/three.min.js"></script>
+    <script src="/js/lib/three/GLTFLoader.js"></script>
+    <script src="/js/lib/three/threejs-orbit-controls.umd.min.js"></script>
+</head>
+
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="/">Weredog Demo</a>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/products">Products</a></li>
+                <li><a href="/dressing-room" class="active">Dressing Room</a></li>
+                <li><a href="/cart">Cart</a></li>
+                <li><a href="/account">Account</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="dressing-room-container">
+        <div class="dressing-room-controls">
+            <h1>3D Dressing Room</h1>
+            <p>Visualize products on a mannequin model.</p>
+            
+            <div class="control-group">
+                <label for="product-select">Select Product:</label>
+                <select id="product-select" class="product-dropdown">
+                    <option value="">Loading products...</option>
+                </select>
+            </div>
+            
+            <div class="product-info" id="product-info">
+                <h2>Product Information</h2>
+                <p id="product-name">Select a product to see details</p>
+                <p id="product-price"></p>
+                <div id="product-description"></div>
+                <a id="product-link" class="btn" style="display: none;">View Product Details</a>
+            </div>
+            
+            <div class="control-group">
+                <h3>Movement Controls</h3>
+                <p>Use arrow keys to move the product around the mannequin.</p>
+                <p>Use WASD keys to rotate the product.</p>
+                <div class="control-buttons">
+                    <button id="reset-position" class="btn">Reset Position</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="dressing-room-viewer">
+            <div id="dressing-room-canvas"></div>
+            <div id="loading-overlay" class="loading-overlay">
+                <div class="loading-spinner"></div>
+                <p>Loading 3D models...</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Weredog Demo. All rights reserved.</p>
+    </footer>
+
+    <script src="/js/dressing-room.js"></script>
+    <a href="#" class="back-to-top" id="backToTop">↑</a>
+    <script src="/js/layout.js"></script>
+</body>
+
+</html>
