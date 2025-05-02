@@ -19,46 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const productCategory = document.getElementById('product-category');
     const productStock = document.getElementById('product-stock');
     const modelLoadingOverlay = document.getElementById('model-loading-overlay');
-    const fullscreenToggle = document.getElementById('fullscreen-toggle');
+    // const fullscreenToggle = document.getElementById('fullscreen-toggle');
     const productViewer = document.getElementById('product-viewer');
 
-    // Get expand/collapse icons
-    const expandIcon = fullscreenToggle.querySelector('.expand-icon');
-    const collapseIcon = fullscreenToggle.querySelector('.collapse-icon');
-
-    // Fullscreen toggle
-    let isFullscreen = false;
-    fullscreenToggle.addEventListener('click', toggleFullscreen);
-
-    // Add ESC key listener for exiting fullscreen
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && isFullscreen) {
-            toggleFullscreen();
-        }
-    });
-
-    function toggleFullscreen() {
-        isFullscreen = !isFullscreen;
-
-        if (isFullscreen) {
-            // Apply fullscreen styles
-            productViewer.classList.add('fullscreen');
-            expandIcon.style.display = 'none';
-            collapseIcon.style.display = 'block';
-            document.body.style.overflow = 'hidden'; // Prevent scrolling when in fullscreen
-        } else {
-            // Remove fullscreen styles
-            productViewer.classList.remove('fullscreen');
-            expandIcon.style.display = 'block';
-            collapseIcon.style.display = 'none';
-            document.body.style.overflow = ''; // Restore scrolling
-        }
-
-        // Delay the resize event slightly to ensure CSS transitions complete
-        setTimeout(() => {
-            window.dispatchEvent(new Event('resize'));
-        }, 100);
-    }
 
     // Quantity controls
     const decreaseBtn = document.getElementById('decrease-quantity');
