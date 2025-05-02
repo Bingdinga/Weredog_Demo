@@ -13,7 +13,7 @@ pids
 node_modules/
 
 # Three.js
-public/js/lib/three
+public/js/lib/three/*
 
 # Environment variables
 .env

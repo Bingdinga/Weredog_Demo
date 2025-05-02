@@ -1,7 +1,7 @@
 {
   "name": "weredog-demo",
   "version": "1.0.0",
-  "description": "E-commerce website with 3D product visualization",
+  "description": "Weredog Demo",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",

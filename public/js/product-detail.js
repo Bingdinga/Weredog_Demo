@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .then(product => {
                 // Set product details
-                document.title = `${product.name} | 3D Shop`;
+                document.title = `${product.name} | Weredog Demo`;
                 productName.textContent = product.name;
                 productPrice.textContent = `$${product.price.toFixed(2)}`;
                 productDescription.textContent = product.description;
