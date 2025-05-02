@@ -67,6 +67,19 @@ nav {
     color: var(--color-primary);
 }
 
+.logo a {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-size: inherit;
+    font-weight: inherit;
+}
+
+.logo a:hover {
+    color: var(--color-primary);
+    /* Optional: add a subtle effect on hover */
+    text-shadow: 0 0 8px rgba(142, 45, 226, 0.4);
+}
+
 .nav-links {
     display: flex;
     font-size: 1.5rem;

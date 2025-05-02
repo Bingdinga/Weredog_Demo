@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Products | Weredog Demo</title>
     <link rel="stylesheet" href="/css/main.css">
 </head>
+
 <body>
     <header>
         <nav>
-            <div class="logo">Weredog Demo</div>
+            <div class="logo">
+                <a href="/">Weredog Demo</a>
+            </div>
             <ul class="nav-links">
                 <li><a href="/">Home</a></li>
                 <li><a href="/products" class="active">Products</a></li>
@@ -18,11 +22,11 @@
             </ul>
         </nav>
     </header>
-    
+
     <div class="products-container">
         <aside class="filters-sidebar">
             <h2>Filter Products</h2>
-            
+
             <div class="filter-group">
                 <h3>Categories</h3>
                 <ul class="category-list" id="category-list">
@@ -31,7 +35,7 @@
                     <li class="loading-placeholder">Loading categories...</li>
                 </ul>
             </div>
-            
+
             <div class="filter-group">
                 <h3>Price Range</h3>
                 <div class="price-range">
@@ -42,7 +46,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="filter-group">
                 <h3>Sort By</h3>
                 <select id="sort-filter" class="sort-select">
@@ -52,10 +56,10 @@
                     <option value="newest">Newest</option>
                 </select>
             </div>
-            
+
             <button id="apply-filters" class="btn">Apply Filters</button>
         </aside>
-        
+
         <main class="products-grid-container">
             <div class="products-header">
                 <h1>All Products</h1>
@@ -64,22 +68,22 @@
                     <button id="search-button" class="btn">Search</button>
                 </div>
             </div>
-            
+
             <div class="products-grid" id="products-grid">
                 <!-- Products will be loaded dynamically -->
                 <div class="loading-message">Loading products...</div>
             </div>
-            
+
             <div class="pagination" id="pagination">
                 <!-- Pagination will be added dynamically if needed -->
             </div>
         </main>
     </div>
-    
+
     <footer>
         <p>&copy; 2025 Weredog Demo. All rights reserved.</p>
     </footer>
-    
+
     <!-- Product card template for JavaScript -->
     <template id="product-card-template">
         <div class="product-card">
@@ -96,9 +100,10 @@
             </div>
         </div>
     </template>
-    
+
     <script src="/js/products.js"></script>
     <a href="#" class="back-to-top" id="backToTop">↑</a>
     <script src="/js/layout.js"></script>
 </body>
+
 </html>

@@ -4,14 +4,15 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    /* Changed from space-between to center */
     padding: 4rem 2rem;
     gap: 2rem;
-    /* Add gap between the elements */
     max-width: 1200px;
-    /* Maximum width */
-    margin: 0 auto;
-    /* Center the whole section */
+    margin: 2rem auto 0;
+    /* Added top margin (2rem) */
+    border-radius: var(--border-radius);
+    /* Rounded corners */
+    overflow: hidden;
+    /* Ensures content doesn't overflow the rounded corners */
 }
 
 .hero-content {
