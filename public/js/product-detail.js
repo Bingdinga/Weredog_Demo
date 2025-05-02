@@ -1,14 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Dynamically import Three.js
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
-    script.onload = () => {
-        console.log('Three.js loaded successfully');
-        // Get product data after Three.js is loaded
-        loadProductData();
-    };
-    document.head.appendChild(script);
-
     // Get product ID from URL
     const productId = window.location.pathname.split('/').pop();
 
@@ -22,6 +12,323 @@ document.addEventListener('DOMContentLoaded', () => {
     // const fullscreenToggle = document.getElementById('fullscreen-toggle');
     const productViewer = document.getElementById('product-viewer');
 
+    // Get expand/collapse icons
+
+    // Scene variables
+    let scene, camera, renderer, model;
+    let isDragging = false;
+    let isFullscreen = false;
+    let previousMousePosition = { x: 0, y: 0 };
+
+    console.log('Three.js loaded successfully');
+
+    // Load product data
+    loadProductData();
+
+    // Add fullscreen toggle functionality
+    // fullscreenToggle.addEventListener('click', toggleFullscreen);
+
+    // function toggleFullscreen() {
+    //     isFullscreen = !isFullscreen;
+
+    //     if (isFullscreen) {
+    //         productViewer.classList.add('fullscreen');
+    //         expandIcon.style.display = 'none';
+    //         collapseIcon.style.display = 'block';
+    //         document.body.style.overflow = 'hidden';
+    //     } else {
+    //         productViewer.classList.remove('fullscreen');
+    //         expandIcon.style.display = 'block';
+    //         collapseIcon.style.display = 'none';
+    //         document.body.style.overflow = '';
+    //     }
+
+    //     // Update rendering after transition
+    //     setTimeout(() => {
+    //         onWindowResize();
+    //     }, 100);
+    // }
+
+    // Load product data from API
+    function loadProductData() {
+        fetch(`/api/products/${productId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Product not found');
+                }
+                return response.json();
+            })
+            .then(product => {
+                // Set product details
+                document.title = `${product.name} | 3D Shop`;
+                productName.textContent = product.name;
+                productPrice.textContent = `$${product.price.toFixed(2)}`;
+                productDescription.textContent = product.description;
+                productStock.textContent = product.stock_quantity > 0
+                    ? `${product.stock_quantity} items`
+                    : 'Out of stock';
+
+                // Check if we have valid models
+                if (product.models && product.models.length > 0) {
+                    const modelPath = product.models[0].model_path;
+                    console.log('Loading model from path:', modelPath);
+
+                    // Verify that THREE and GLTFLoader are loaded
+                    if (window.THREE && window.THREE.GLTFLoader) {
+                        init3DViewer(modelPath);
+                    } else {
+                        console.error('THREE.js or GLTFLoader not available');
+                        initSimple3DViewer();
+                    }
+                } else {
+                    console.log('No models available for this product, using simple viewer');
+                    initSimple3DViewer();
+                }
+            })
+            .catch(error => {
+                console.error('Error loading product:', error);
+                productDescription.textContent = 'Error loading product details.';
+
+                // Hide loading overlay
+                if (modelLoadingOverlay) {
+                    modelLoadingOverlay.classList.add('hide');
+                }
+
+                // Fall back to simple viewer
+                initSimple3DViewer();
+            });
+    }
+
+    // Initialize 3D viewer with GLB model
+    function init3DViewer(modelPath) {
+        // Create scene
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x121212);
+
+        const container = document.getElementById('product-viewer');
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+
+        // Create camera
+        camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+        camera.position.z = 5;
+
+        // Create renderer
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(width, height);
+        renderer.setPixelRatio(window.devicePixelRatio);
+
+        // Find any existing canvas and remove it
+        const existingCanvas = container.querySelector('canvas');
+        if (existingCanvas) {
+            container.removeChild(existingCanvas);
+        }
+
+        container.appendChild(renderer.domElement);
+
+        // Add lights
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(1, 1, 1).normalize();
+        scene.add(directionalLight);
+
+        // Add a back light
+        const backLight = new THREE.DirectionalLight(0xffffff, 0.4);
+        backLight.position.set(-1, -1, -1).normalize();
+        scene.add(backLight);
+
+        // Load the model
+        const loader = new THREE.GLTFLoader();
+
+        loader.load(
+            modelPath,
+            (gltf) => {
+                // Model loaded successfully
+                console.log('Model loaded successfully');
+                model = gltf.scene;
+                scene.add(model);
+
+                // Center and scale the model
+                const box = new THREE.Box3().setFromObject(model);
+                const center = box.getCenter(new THREE.Vector3());
+                const size = box.getSize(new THREE.Vector3());
+
+                // Get the maximum dimension
+                const maxDim = Math.max(size.x, size.y, size.z);
+                const scaleFactor = 2 / maxDim;
+
+                model.scale.set(scaleFactor, scaleFactor, scaleFactor);
+                model.position.sub(center.multiplyScalar(scaleFactor));
+
+                // Hide loading overlay
+                modelLoadingOverlay.classList.add('hide');
+
+                // Set up mouse control variables
+                setupMouseControls();
+
+                // Start animation loop
+                animate();
+            },
+            (progress) => {
+                // Loading progress
+                const percent = Math.floor((progress.loaded / progress.total) * 100);
+                console.log(`Loading model: ${percent}% loaded`);
+            },
+            (error) => {
+                // Error handling
+                console.error('Error loading 3D model:', error);
+                modelLoadingOverlay.classList.add('hide');
+
+                // Fall back to simple viewer
+                initSimple3DViewer();
+            }
+        );
+
+        // Window resize handling
+        window.addEventListener('resize', onWindowResize);
+    }
+
+    // Fallback viewer with a simple cube
+    function initSimple3DViewer() {
+        // Create scene
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x121212);
+
+        const container = document.getElementById('product-viewer');
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+
+        // Create camera
+        camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+        camera.position.z = 5;
+
+        // Create renderer
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(width, height);
+        renderer.setPixelRatio(window.devicePixelRatio);
+
+        // Find any existing canvas and remove it
+        const existingCanvas = container.querySelector('canvas');
+        if (existingCanvas) {
+            container.removeChild(existingCanvas);
+        }
+
+        container.appendChild(renderer.domElement);
+
+        // Add lights
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(1, 1, 1).normalize();
+        scene.add(directionalLight);
+
+        // Create a simple cube
+        const geometry = new THREE.BoxGeometry(2, 2, 2);
+        const material = new THREE.MeshStandardMaterial({
+            color: 0x8e2de2,
+            roughness: 0.7,
+            metalness: 0.3
+        });
+        model = new THREE.Mesh(geometry, material);
+        scene.add(model);
+
+        // Hide loading overlay
+        modelLoadingOverlay.classList.add('hide');
+
+        // Set up mouse control variables
+        setupMouseControls();
+
+        // Start animation loop
+        animate();
+    }
+
+    // Mouse controls setup
+    function setupMouseControls() {
+        let isDragging = false;
+        let previousMousePosition = {
+            x: 0,
+            y: 0
+        };
+
+        // Mouse events
+        productViewer.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            previousMousePosition = {
+                x: e.clientX,
+                y: e.clientY
+            };
+        });
+
+        productViewer.addEventListener('mousemove', (e) => {
+            if (isDragging && model) {
+                const deltaX = e.clientX - previousMousePosition.x;
+                const deltaY = e.clientY - previousMousePosition.y;
+
+                model.rotation.y += deltaX * 0.01;
+                model.rotation.x += deltaY * 0.01;
+
+                previousMousePosition = {
+                    x: e.clientX,
+                    y: e.clientY
+                };
+            }
+        });
+
+        productViewer.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
+        productViewer.addEventListener('mouseleave', () => {
+            isDragging = false;
+        });
+
+        // Mouse wheel for zoom
+        productViewer.addEventListener('wheel', (e) => {
+            e.preventDefault();
+
+            // Zoom in/out based on scroll direction
+            if (e.deltaY < 0) {
+                // Zoom in
+                camera.position.z = Math.max(2, camera.position.z - 0.5);
+            } else {
+                // Zoom out
+                camera.position.z = Math.min(10, camera.position.z + 0.5);
+            }
+        });
+    }
+
+    // Animation loop
+    function animate() {
+        requestAnimationFrame(animate);
+
+        // Add slight auto-rotation when not dragging
+        if (model && !isDragging) {
+            model.rotation.y += 0.005;
+        }
+
+        // Render scene
+        if (renderer && scene && camera) {
+            renderer.render(scene, camera);
+        }
+    }
+
+    // Window resize handler
+    function onWindowResize() {
+        if (!camera || !renderer) return;
+
+        const container = document.getElementById('product-viewer');
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+        renderer.setSize(width, height);
+
+        console.log('Resized to:', width, height);
+    }
 
     // Quantity controls
     const decreaseBtn = document.getElementById('decrease-quantity');
@@ -61,177 +368,6 @@ document.addEventListener('DOMContentLoaded', () => {
     wishlistBtn.addEventListener('click', () => {
         toggleWishlist(productId);
     });
-
-    // Load product data from API
-    function loadProductData() {
-        fetch(`/api/products/${productId}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Product not found');
-                }
-                return response.json();
-            })
-            .then(product => {
-                // Set product details
-                document.title = `${product.name} | 3D Shop`;
-                productName.textContent = product.name;
-                productPrice.textContent = `$${product.price.toFixed(2)}`;
-                productDescription.textContent = product.description;
-                productStock.textContent = product.stock_quantity > 0
-                    ? `${product.stock_quantity} items`
-                    : 'Out of stock';
-
-                // Initialize 3D viewer with a simple cube
-                initSimple3DViewer();
-            })
-            .catch(error => {
-                console.error('Error loading product:', error);
-                productDescription.textContent = 'Error loading product details.';
-
-                // Hide loading overlay even on error
-                modelLoadingOverlay.classList.add('hide');
-            });
-    }
-
-    // Initialize a simple 3D viewer without OrbitControls
-    function initSimple3DViewer() {
-        if (!window.THREE) {
-            console.error('Three.js not loaded');
-            modelLoadingOverlay.classList.add('hide');
-            return;
-        }
-
-        const container = document.getElementById('product-viewer');
-        const width = container.clientWidth;
-        const height = container.clientHeight;
-
-        // Create scene
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x121212);
-
-        // Create camera
-        const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-        camera.position.z = 5;
-
-        // Create renderer
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(width, height);
-        renderer.setPixelRatio(window.devicePixelRatio);
-
-        // Find any existing canvas and remove it
-        const existingCanvas = container.querySelector('canvas');
-        if (existingCanvas) {
-            container.removeChild(existingCanvas);
-        }
-
-        container.appendChild(renderer.domElement);
-
-        // Add lights
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-        scene.add(ambientLight);
-
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        directionalLight.position.set(1, 1, 1).normalize();
-        scene.add(directionalLight);
-
-        // Create a simple cube
-        const geometry = new THREE.BoxGeometry(2, 2, 2);
-        const material = new THREE.MeshStandardMaterial({
-            color: 0x8e2de2,
-            roughness: 0.7,
-            metalness: 0.3
-        });
-        const cube = new THREE.Mesh(geometry, material);
-        scene.add(cube);
-
-        // Hide loading overlay when the model is ready
-        setTimeout(() => {
-            modelLoadingOverlay.classList.add('hide');
-        }, 500); // Short delay to ensure the scene is rendered
-
-        // Add manual rotation with mouse
-        let isDragging = false;
-        let previousMousePosition = {
-            x: 0,
-            y: 0
-        };
-
-        // Mouse events for manual rotation
-        container.addEventListener('mousedown', (e) => {
-            isDragging = true;
-            previousMousePosition = {
-                x: e.clientX,
-                y: e.clientY
-            };
-        });
-
-        container.addEventListener('mousemove', (e) => {
-            if (isDragging) {
-                const deltaX = e.clientX - previousMousePosition.x;
-                const deltaY = e.clientY - previousMousePosition.y;
-
-                cube.rotation.y += deltaX * 0.01;
-                cube.rotation.x += deltaY * 0.01;
-
-                previousMousePosition = {
-                    x: e.clientX,
-                    y: e.clientY
-                };
-            }
-        });
-
-        container.addEventListener('mouseup', () => {
-            isDragging = false;
-        });
-
-        container.addEventListener('mouseleave', () => {
-            isDragging = false;
-        });
-
-        // Mouse wheel for zoom
-        container.addEventListener('wheel', (e) => {
-            e.preventDefault();
-
-            // Zoom in/out based on scroll direction
-            if (e.deltaY < 0) {
-                // Zoom in
-                camera.position.z = Math.max(2, camera.position.z - 0.5);
-            } else {
-                // Zoom out
-                camera.position.z = Math.min(10, camera.position.z + 0.5);
-            }
-        });
-
-        // Animation function
-        function animate() {
-            requestAnimationFrame(animate);
-
-            // Add slight automatic rotation when not interacting
-            if (!isDragging) {
-                cube.rotation.y += 0.005;
-            }
-
-            renderer.render(scene, camera);
-        }
-
-        animate();
-
-        // Handle window resize
-        window.addEventListener('resize', () => {
-            // Get current dimensions from the container
-            const newWidth = container.clientWidth;
-            const newHeight = container.clientHeight;
-
-            // Update camera
-            camera.aspect = newWidth / newHeight;
-            camera.updateProjectionMatrix();
-
-            // Update renderer
-            renderer.setSize(newWidth, newHeight);
-
-            console.log('Resized to:', newWidth, newHeight); // Debug info
-        });
-    }
 
     // Add to cart function
     function addToCart(productId, quantity) {

@@ -1,7 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const { db } = require('../db/database');
-const { getOptimalModelResolution } = require('../utils/modelLoader');
+const { getOptimalModelResolution, getDefaultModelPath } = require('../utils/modelLoader');
+
+const fs = require('fs');
+const path = require('path');
 
 // Get all products
 router.get('/', (req, res) => {
@@ -98,9 +101,31 @@ router.get('/:id', (req, res) => {
 
     // Get product models with appropriate resolution
     const resolution = getOptimalModelResolution(req);
-    const models = db.prepare(
+    let models = db.prepare(
       'SELECT * FROM product_models WHERE product_id = ? AND resolution = ?'
     ).all(productId, resolution);
+
+    models = models.filter(model => fileExists(model.model_path));
+
+    // If no valid models found, use the default placeholder
+    if (models.length === 0) {
+      const defaultPath = getDefaultModelPath(resolution);
+
+      // Make sure the default placeholder exists
+      if (fileExists(defaultPath)) {
+        models = [{
+          model_id: null,
+          product_id: productId,
+          model_path: defaultPath,
+          resolution: resolution,
+          is_placeholder: true
+        }];
+      } else {
+        // If default doesn't exist, don't return any models
+        console.warn(`Default model not found: ${defaultPath}`);
+        models = [];
+      }
+    }
 
     // Return combined product data
     res.json({
@@ -151,5 +176,17 @@ router.get('/category/:categoryId', (req, res) => {
     res.status(500).json({ error: 'Failed to fetch products by category' });
   }
 });
+
+function fileExists(filePath) {
+  try {
+    // Remove leading slash and check in the public directory
+    const cleanPath = filePath.startsWith('/') ? filePath.substring(1) : filePath;
+    const fullPath = path.join(__dirname, '..', 'public', cleanPath);
+    return fs.existsSync(fullPath);
+  } catch (error) {
+    console.error('Error checking file existence:', error);
+    return false;
+  }
+}
 
 module.exports = router;

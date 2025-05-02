@@ -24,6 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use(helmet({ contentSecurityPolicy: false })); // Disable CSP for Three.js to work
 app.use(morgan('dev'));
+app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
 
 // Session configuration
 app.use(session({
