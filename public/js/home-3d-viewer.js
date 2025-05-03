@@ -1,3 +1,5 @@
+import { applyRandomMatteMaterial } from '/js/utils/materialHelper.js';
+
 // JavaScript for initializing 3D viewer in hero section
 document.addEventListener('DOMContentLoaded', function () {
     // Check if Three.js is available
@@ -22,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Function to initialize the 3D viewer
     function initHero3DViewer() {
         const container = document.getElementById('hero-3d-container');
-        
+
         // If container doesn't exist, return early
         if (!container) return;
 
@@ -66,6 +68,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 modelPath,
                 (gltf) => {
                     model = gltf.scene;
+
+                    // Apply random material to all meshes
+                    applyRandomMatteMaterial(model);
+
                     scene.add(model);
 
                     // Center and scale the model

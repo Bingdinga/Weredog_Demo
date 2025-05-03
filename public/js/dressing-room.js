@@ -1,3 +1,5 @@
+import { applyRandomMatteMaterial } from '/js/utils/materialHelper.js';
+
 document.addEventListener('DOMContentLoaded', () => {
 
     if (!THREE) {
@@ -147,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 mannequin.position.y = 0; // Keep the feet on the ground
                 mannequin.position.z = -center.z;
 
-                scale = 0.3;
+                let scale = 0.3;
                 mannequin.scale.set(scale, scale, scale);
 
                 // Set up shadows
@@ -331,6 +333,10 @@ document.addEventListener('DOMContentLoaded', () => {
             modelPath,
             (gltf) => {
                 product = gltf.scene;
+
+                // Apply random material to all meshes
+                applyRandomMatteMaterial(product);
+
                 scene.add(product);
 
                 // Position the product

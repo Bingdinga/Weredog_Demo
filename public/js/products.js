@@ -1,3 +1,5 @@
+import { ProductCardModel } from '/js/product-card-model.js';
+
 document.addEventListener('DOMContentLoaded', () => {
 
     // Check if THREE.js is available and load it if not

@@ -1,10 +1,10 @@
 /* Hero Section */
 .hero {
-    background-color: var(--color-darker);
+    background-color: var(--color-dark);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 4rem 2rem;
+    padding: 2rem 2rem;
     gap: 2rem;
     max-width: 1200px;
     margin: 2rem auto 0;

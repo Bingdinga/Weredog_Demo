@@ -1,3 +1,5 @@
+import { applyRandomMatteMaterial } from '/js/utils/materialHelper.js';
+
 document.addEventListener('DOMContentLoaded', () => {
     // Get product ID from URL
     const productId = window.location.pathname.split('/').pop();
@@ -196,6 +198,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 model.scale.set(scaleFactor, scaleFactor, scaleFactor);
                 model.position.sub(center.multiplyScalar(scaleFactor));
+
+                applyRandomMatteMaterial(model);
 
                 // Hide loading overlay
                 modelLoadingOverlay.classList.add('hide');
@@ -452,6 +456,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Model loaded successfully
                 console.log(`${resolution} resolution model loaded successfully`);
 
+                model = gltf.scene;
+
+                // Apply random material to all meshes
+                applyRandomMatteMaterial(model);
+
                 // Update current resolution
                 currentModelResolution = resolution;
 
@@ -459,7 +468,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 productModels[resolution] = modelPath;
 
                 // Update the scene with the new model
-                model = gltf.scene;
                 scene.add(model);
 
                 // Center and scale the model
