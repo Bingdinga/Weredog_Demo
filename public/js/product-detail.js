@@ -554,6 +554,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Add to cart function
     function addToCart(productId, quantity) {
+        console.log('Adding to cart:', productId, quantity); // Debug log
+
         fetch('/api/cart/add', {
             method: 'POST',
             headers: {
@@ -561,18 +563,45 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             body: JSON.stringify({ productId, quantity })
         })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Cart add response:', response); // Debug log
+                return response.json();
+            })
             .then(data => {
+                console.log('Cart add data:', data); // Debug log
+
                 if (data.success) {
-                    showNotification('Product added to cart successfully!', 'success');
-                    updateCartCount(); // Add this line
+                    // Use the showNotification function if it exists
+                    if (typeof showNotification === 'function') {
+                        // showNotification('Product added to cart successfully!', 'success');
+                    } else {
+                        // alert('Product added to cart successfully!');
+                    }
+
+                    // Check if updateCartCount is available
+                    if (typeof window.updateCartCount === 'function') {
+                        console.log('Calling updateCartCount...'); // Debug log
+                        window.updateCartCount();
+                    } else {
+                        console.error('updateCartCount function not found on window object');
+                    }
+
+                    // Dispatch cart event if available
+                    if (typeof window.dispatchCartEvent === 'function' && typeof window.CartEvents === 'object') {
+                        window.dispatchCartEvent(window.CartEvents.ITEM_ADDED, {
+                            productId,
+                            quantity
+                        });
+                    } else {
+                        console.log('Cart events not available');
+                    }
                 } else {
-                    showNotification(data.error || 'Failed to add product to cart', 'error');
+                    alert(data.error || 'Failed to add product to cart');
                 }
             })
             .catch(error => {
                 console.error('Error adding to cart:', error);
-                showNotification('Error adding product to cart', 'error');
+                alert('Error adding product to cart');
             });
     }
 

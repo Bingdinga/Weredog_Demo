@@ -30,11 +30,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Functions
     function loadCart() {
-        fetch('/api/cart')
+        return fetch('/api/cart')
             .then(response => response.json())
             .then(data => {
                 cart = data;
                 renderCart();
+                return data;
             })
             .catch(error => {
                 console.error('Error loading cart:', error);
@@ -123,7 +124,10 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    loadCart();
+                    loadCart().then(() => {
+                        // Emit cart updated event
+                        dispatchCartEvent(CartEvents.ITEM_UPDATED, { itemId, quantity });
+                    });
                 } else {
                     showError(data.error || 'Failed to update quantity');
                 }
@@ -141,8 +145,10 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    loadCart();
-                    updateCartCount(); // Add this line
+                    loadCart().then(() => {
+                        // Emit cart updated event
+                        dispatchCartEvent(CartEvents.ITEM_REMOVED, { itemId });
+                    });
                 } else {
                     showError(data.error || 'Failed to remove item');
                 }

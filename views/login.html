@@ -79,6 +79,9 @@
                         // Login successful
                         loginError.textContent = '';
 
+                        // Notify any listeners that authentication status changed
+                        window.dispatchEvent(new Event('authStatusChanged'));
+
                         // Redirect to previous page or home
                         const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || '/';
                         window.location.href = redirectUrl;
