@@ -2,6 +2,10 @@
 logs
 *.log
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
 # Runtime data
 pids
@@ -11,12 +15,15 @@ pids
 
 # Dependency directories
 node_modules/
+jspm_packages/
 
 # Three.js
 public/js/lib/three/*
 
 # Environment variables
 .env
+.env.local
+.env.*.local
 
 # Database files
 *.db
@@ -32,8 +39,11 @@ Thumbs.db
 .vscode/
 *.sublime-project
 *.sublime-workspace
+*.swp
+*.swo
+*~
 
-# 3D Model files
+# 3D Model files - Add more extensions as needed
 *.glb
 *.gltf
 *.obj
@@ -42,10 +52,11 @@ Thumbs.db
 *.dae
 *.stl
 *.3ds
+*.usdz
+*.usda
+*.usd
 public/models/
-public/models/high/
-public/models/medium/
-public/models/low/
+public/models/**
 
 # Image files
 *.jpg
@@ -55,8 +66,10 @@ public/models/low/
 *.bmp
 *.tiff
 *.webp
+*.ico
 *.svg
 public/img/
+public/img/**
 
 # Exclude placeholder images that should be version controlled
 !public/img/placeholder.svg
@@ -66,3 +79,65 @@ public/img/
 *.blend2
 *.max
 *.c4d
+
+# Build and distribution files
+dist/
+build/
+out/
+coverage/
+.nyc_output/
+
+# Temporary files
+tmp/
+temp/
+
+# System files
+*.tmp
+*.temp
+*.bak
+*.backup
+*.old
+
+# Generated documentation
+docs/build/
+api-docs/
+
+# Cache files
+.cache/
+.npm/
+.yarn/
+
+# Lock files (if you prefer to exclude them)
+# yarn.lock
+# package-lock.json
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Ignore uploaded files
+uploads/
+uploads/**
+
+# Ignore large data files
+data/
+datasets/
+
+# Ignore private keys and certificates
+*.pem
+*.key
+*.crt
+
+# Ignore email templates if they're large HTML files
+email-templates/
+
+# Ignore any generated reports
+reports/
+reports/**
+
+# Ignore test coverage results
+coverage/
+.nyc_output/
+
+# Ignore compiled JavaScript if using TypeScript
+# dist/
+# lib/
