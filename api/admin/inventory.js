@@ -1,120 +1,98 @@
 const express = require('express');
 const router = express.Router();
 const { db } = require('../../db/database');
+const { isValidProduct } = require('../../utils/validators');
 const logger = require('../../utils/logger');
 
-// Get all products with stock information
+// Get all products for inventory management
 router.get('/products', (req, res) => {
   try {
     const products = db.prepare(`
-      SELECT p.*, c.name as category_name
+      SELECT p.*, c.name as category_name,
+             (SELECT COUNT(*) FROM order_items oi WHERE oi.product_id = p.product_id) as total_sold
       FROM products p
       LEFT JOIN categories c ON p.category_id = c.category_id
-      ORDER BY p.stock_quantity ASC, p.name ASC
+      ORDER BY p.product_id DESC
     `).all();
-
+    
     res.json(products);
   } catch (error) {
-    logger.error('Error fetching inventory:', error);
-    res.status(500).json({ error: 'Failed to fetch inventory' });
+    logger.error('Error fetching inventory products', error);
+    res.status(500).json({ error: 'Failed to fetch inventory products' });
   }
 });
 
 // Update product stock
-router.put('/products/:productId', (req, res) => {
+router.put('/products/:id/stock', (req, res) => {
   try {
-    const { productId } = req.params;
-    const { stock_quantity, low_stock_threshold, price } = req.body;
+    const { id } = req.params;
+    const { stock_quantity, reason } = req.body;
     const adminId = req.session.userId;
-
-    // Update product
-    const result = db.prepare(`
-      UPDATE products 
-      SET stock_quantity = ?, low_stock_threshold = ?, price = ?
-      WHERE product_id = ?
-    `).run(stock_quantity, low_stock_threshold, price, productId);
-
-    if (result.changes === 0) {
+    
+    // Validate stock quantity
+    if (!Number.isInteger(stock_quantity) || stock_quantity < 0) {
+      return res.status(400).json({ error: 'Invalid stock quantity' });
+    }
+    
+    // Get current stock
+    const currentProduct = db.prepare('SELECT stock_quantity FROM products WHERE product_id = ?').get(id);
+    if (!currentProduct) {
       return res.status(404).json({ error: 'Product not found' });
     }
-
-    // Log inventory change
-    db.prepare(`
-      INSERT INTO inventory_log (
-        product_id, quantity_change, reason, admin_user_id
-      ) VALUES (?, ?, ?, ?)
-    `).run(productId, stock_quantity, 'adjustment', adminId);
-
-    // Log admin action
-    db.prepare(`
-      INSERT INTO admin_log (
-        admin_id, action_type, action_details, ip_address
-      ) VALUES (?, ?, ?, ?)
-    `).run(adminId, 'product_edit', `Updated product ${productId}`, req.ip);
-
-    res.json({ success: true });
-  } catch (error) {
-    logger.error('Error updating product:', error);
-    res.status(500).json({ error: 'Failed to update product' });
-  }
-});
-
-// Get low stock products
-router.get('/low-stock', (req, res) => {
-  try {
-    const products = db.prepare(`
-      SELECT p.*, c.name as category_name
-      FROM products p
-      LEFT JOIN categories c ON p.category_id = c.category_id
-      WHERE p.stock_quantity <= p.low_stock_threshold
-      ORDER BY p.stock_quantity ASC
-    `).all();
-
-    res.json(products);
-  } catch (error) {
-    logger.error('Error fetching low stock products:', error);
-    res.status(500).json({ error: 'Failed to fetch low stock products' });
-  }
-});
-
-// Bulk update stock
-router.post('/bulk-update', (req, res) => {
-  try {
-    const { updates } = req.body;
-    const adminId = req.session.userId;
-
+    
+    const quantityChange = stock_quantity - currentProduct.stock_quantity;
+    
+    // Begin transaction
     db.exec('BEGIN TRANSACTION');
-
-    const updateStmt = db.prepare(`
-      UPDATE products 
-      SET stock_quantity = ? 
-      WHERE product_id = ?
-    `);
-
-    const logStmt = db.prepare(`
-      INSERT INTO inventory_log (
-        product_id, quantity_change, reason, admin_user_id
-      ) VALUES (?, ?, ?, ?)
-    `);
-
-    updates.forEach(({ product_id, stock_quantity }) => {
-      updateStmt.run(stock_quantity, product_id);
-      logStmt.run(product_id, stock_quantity, 'bulk_adjustment', adminId);
-    });
-
-    // Log admin action
-    db.prepare(`
-      INSERT INTO admin_log (
-        admin_id, action_type, action_details, ip_address
-      ) VALUES (?, ?, ?, ?)
-    `).run(adminId, 'bulk_stock_update', `Updated ${updates.length} products`, req.ip);
-
-    db.exec('COMMIT');
-    res.json({ success: true });
+    
+    try {
+      // Update stock
+      db.prepare('UPDATE products SET stock_quantity = ? WHERE product_id = ?').run(stock_quantity, id);
+      
+      // Log inventory change
+      db.prepare(`
+        INSERT INTO inventory_log (product_id, quantity_change, reason, admin_user_id)
+        VALUES (?, ?, ?, ?)
+      `).run(id, quantityChange, reason || 'manual_adjustment', adminId);
+      
+      db.exec('COMMIT');
+      res.json({ success: true });
+    } catch (error) {
+      db.exec('ROLLBACK');
+      throw error;
+    }
   } catch (error) {
-    db.exec('ROLLBACK');
-    logger.error('Error bulk updating inventory:', error);
-    res.status(500).json({ error: 'Failed to bulk update inventory' });
+    logger.error('Error updating stock', error);
+    res.status(500).json({ error: 'Failed to update stock' });
+  }
+});
+
+// Get inventory log
+router.get('/log', (req, res) => {
+  try {
+    const { page = 1, limit = 50 } = req.query;
+    const offset = (page - 1) * limit;
+    
+    const logs = db.prepare(`
+      SELECT il.*, p.name as product_name, u.username as admin_username
+      FROM inventory_log il
+      JOIN products p ON il.product_id = p.product_id
+      LEFT JOIN users u ON il.admin_user_id = u.user_id
+      ORDER BY il.timestamp DESC
+      LIMIT ? OFFSET ?
+    `).all(limit, offset);
+    
+    const total = db.prepare('SELECT COUNT(*) as count FROM inventory_log').get().count;
+    
+    res.json({
+      logs,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit)
+    });
+  } catch (error) {
+    logger.error('Error fetching inventory log', error);
+    res.status(500).json({ error: 'Failed to fetch inventory log' });
   }
 });
 

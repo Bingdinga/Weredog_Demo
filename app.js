@@ -55,7 +55,6 @@ const wishlistRoutes = require('./api/wishlist');
 const orderRoutes = require('./api/orders');
 const paymentRoutes = require('./api/payment');
 
-const adminInventoryRoutes = require('./api/admin/inventory');
 
 // API routes
 app.use('/api/auth', authRoutes);
@@ -65,17 +64,15 @@ app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/payment', paymentRoutes);
 
+// Admin routes
+const adminInventoryRoutes = require('./api/admin/inventory');
+const adminAnalyticsRoutes = require('./api/admin/analytics');
+const adminUsersRoutes = require('./api/admin/users');
+const adminDiscountsRoutes = require('./api/admin/discounts');
 app.use('/api/admin/inventory', authMiddleware, adminMiddleware, adminInventoryRoutes);
-
-// Admin routes will be added later
-// const adminInventoryRoutes = require('./api/admin/inventory');
-// const adminAnalyticsRoutes = require('./api/admin/analytics');
-// const adminUsersRoutes = require('./api/admin/users');
-// const adminDiscountsRoutes = require('./api/admin/discounts');
-// app.use('/api/admin/inventory', authMiddleware, adminMiddleware, adminInventoryRoutes);
-// app.use('/api/admin/analytics', authMiddleware, adminMiddleware, adminAnalyticsRoutes);
-// app.use('/api/admin/users', authMiddleware, adminMiddleware, adminUsersRoutes);
-// app.use('/api/admin/discounts', authMiddleware, adminMiddleware, adminDiscountsRoutes);
+app.use('/api/admin/analytics', authMiddleware, adminMiddleware, adminAnalyticsRoutes);
+app.use('/api/admin/users', authMiddleware, adminMiddleware, adminUsersRoutes);
+app.use('/api/admin/discounts', authMiddleware, adminMiddleware, adminDiscountsRoutes);
 
 // Serve HTML views
 app.get('/', (req, res) => {
