@@ -23,7 +23,7 @@
                 <li><a href="/">Home</a></li>
                 <li><a href="/products">Products</a></li>
                 <li><a href="/dressing-room" class="active">Dressing Room</a></li>
-                <li><a href="/cart">Cart</a></li>
+                <li><a href="/cart">Cart <span id="cart-count" class="cart-count">0</span></a></li>
                 <li><a href="/account">Account</a></li>
             </ul>
         </nav>
@@ -45,10 +45,14 @@
             <div class="control-group">
                 <label for="mannequin-select">Select Mannequin:</label>
                 <select id="mannequin-select" class="product-dropdown">
-                    <option value="/models/mannequin.glb">Default Mannequin https://cults3d.com/en/3d-model/various/mannequin-rdfxstudio</option>
+                    <option value="/models/mannequin.glb">Default Mannequin
+                        https://cults3d.com/en/3d-model/various/mannequin-rdfxstudio</option>
                     <!-- Add your other mannequin models here -->
-                    <option value="/models/furry_kobold_base.glb">Kobold https://sketchfab.com/3d-models/furry-kobold-base-ae17d2770b7e498db33c05675db17724</option>
-                    <option value="/models/generic_productfemale_dog_furry.glb">Dog Lady https://sketchfab.com/3d-models/generic-productfemale-dog-furry-af533b732d3b42408cfdbdb6abcb7c94</option>
+                    <option value="/models/furry_kobold_base.glb">Kobold
+                        https://sketchfab.com/3d-models/furry-kobold-base-ae17d2770b7e498db33c05675db17724</option>
+                    <option value="/models/generic_productfemale_dog_furry.glb">Dog Lady
+                        https://sketchfab.com/3d-models/generic-productfemale-dog-furry-af533b732d3b42408cfdbdb6abcb7c94
+                    </option>
                 </select>
             </div>
 
@@ -84,6 +88,7 @@
         <p>&copy; 2025 Weredog Demo. All rights reserved.</p>
     </footer>
 
+    <script type="module" src="/js/shared.js"></script>
     <script type="module" src="/js/dressing-room.js"></script>
     <a href="#" class="back-to-top" id="backToTop">↑</a>
     <script type="module" src="/js/layout.js"></script>

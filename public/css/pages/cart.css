@@ -83,3 +83,49 @@
     font-weight: bold;
     color: var(--color-accent);
 }
+
+/* Empty cart styles */
+.empty-cart {
+    text-align: center;
+    padding: 3rem;
+    background-color: var(--color-dark-accent);
+    border-radius: var(--border-radius);
+}
+
+.empty-cart h2 {
+    margin-bottom: 1rem;
+    color: var(--color-text);
+}
+
+.empty-cart p {
+    color: var(--color-text-secondary);
+    margin-bottom: 2rem;
+}
+
+/* Error notification styles */
+.error-notification {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background-color: var(--color-accent);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 4px;
+    box-shadow: var(--shadow-md);
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.error-notification.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+/* Disabled button state */
+.btn:disabled {
+    background-color: var(--color-darker);
+    cursor: not-allowed;
+    opacity: 0.6;
+}

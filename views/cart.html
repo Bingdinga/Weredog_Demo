@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart | Weredog Demo</title>
+    <link rel="stylesheet" href="/css/main.css">
+</head>
+
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="/">Weredog Demo</a>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/products">Products</a></li>
+                <li><a href="/dressing-room">Dressing Room</a></li>
+                <li><a href="/cart">Cart <span id="cart-count" class="cart-count">0</span></a></li>
+                <li><a href="/account">Account</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="cart-container">
+        <h1>Shopping Cart</h1>
+
+        <div class="cart-content">
+            <div class="cart-items" id="cart-items">
+                <!-- Cart items will be loaded here dynamically -->
+                <div class="loading-message">Loading cart...</div>
+            </div>
+
+            <div class="cart-summary">
+                <h2>Order Summary</h2>
+                <div class="cart-summary-row">
+                    <span>Subtotal:</span>
+                    <span id="cart-subtotal">$0.00</span>
+                </div>
+                <div class="cart-summary-row">
+                    <span>Shipping:</span>
+                    <span id="cart-shipping">FREE</span>
+                </div>
+                <div class="cart-summary-row cart-total">
+                    <span>Total:</span>
+                    <span id="cart-total">$0.00</span>
+                </div>
+                <button id="checkout-btn" class="btn">Proceed to Checkout</button>
+                <button id="continue-shopping" class="btn btn-light">Continue Shopping</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart item template -->
+    <template id="cart-item-template">
+        <div class="cart-item" data-item-id="">
+            <div class="cart-item-image">
+                <img src="" alt="">
+            </div>
+            <div class="cart-item-details">
+                <h3 class="cart-item-name"></h3>
+                <p class="cart-item-price"></p>
+            </div>
+            <div class="cart-item-quantity">
+                <button class="quantity-btn decrease-qty">-</button>
+                <input type="number" class="quantity-input" value="1" min="1">
+                <button class="quantity-btn increase-qty">+</button>
+            </div>
+            <div class="cart-item-subtotal"></div>
+            <button class="remove-item">×</button>
+        </div>
+    </template>
+
+    <!-- Empty cart template -->
+    <template id="empty-cart-template">
+        <div class="empty-cart">
+            <h2>Your cart is empty</h2>
+            <p>Add some great products to your cart.</p>
+            <a href="/products" class="btn">Browse Products</a>
+        </div>
+    </template>
+
+    <footer>
+        <p>&copy; 2025 Weredog Demo. All rights reserved.</p>
+    </footer>
+
+    <script type="module" src="/js/shared.js"></script>
+    <script type="module" src="/js/cart.js"></script>
+    <a href="#" class="back-to-top" id="backToTop">↑</a>
+    <script type="module" src="/js/layout.js"></script>
+</body>
+
+</html>

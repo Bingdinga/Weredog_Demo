@@ -564,14 +564,15 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Product added to cart successfully!');
+                    showNotification('Product added to cart successfully!', 'success');
+                    updateCartCount(); // Add this line
                 } else {
-                    alert(data.error || 'Failed to add product to cart');
+                    showNotification(data.error || 'Failed to add product to cart', 'error');
                 }
             })
             .catch(error => {
                 console.error('Error adding to cart:', error);
-                alert('Error adding product to cart');
+                showNotification('Error adding product to cart', 'error');
             });
     }
 
