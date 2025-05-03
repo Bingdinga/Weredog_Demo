@@ -45,6 +45,23 @@
     margin-top: 1rem;
 }
 
+.control-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--color-text);
+    font-weight: 500;
+}
+
+.control-group select {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: var(--color-darker);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    color: var(--color-text);
+    margin-top: 0.5rem;
+}
+
 .dressing-room-viewer {
     position: relative;
     width: 100%;
@@ -126,6 +143,7 @@
     0% {
         transform: rotate(0deg);
     }
+
     100% {
         transform: rotate(360deg);
     }
@@ -136,11 +154,11 @@
     .dressing-room-container {
         grid-template-columns: 1fr;
     }
-    
+
     .dressing-room-viewer {
         min-height: 400px;
     }
-    
+
     #dressing-room-canvas {
         height: 400px;
     }

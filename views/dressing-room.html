@@ -10,7 +10,8 @@
     <!-- Add this line to ensure THREE is global -->
     <script>window.THREE = THREE;</script>
     <script src="/js/lib/three/GLTFLoader.js"></script>
-    <script src="/js/lib/three/OrbitControls.js"></script></head>
+    <script src="/js/lib/three/OrbitControls.js"></script>
+</head>
 
 <body>
     <header>
@@ -38,6 +39,16 @@
                 <label for="product-select">Select Product:</label>
                 <select id="product-select" class="product-dropdown">
                     <option value="">Loading products...</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="mannequin-select">Select Mannequin:</label>
+                <select id="mannequin-select" class="product-dropdown">
+                    <option value="/models/mannequin.glb">Default Mannequin https://cults3d.com/en/3d-model/various/mannequin-rdfxstudio</option>
+                    <!-- Add your other mannequin models here -->
+                    <option value="/models/furry_kobold_base.glb">Kobold https://sketchfab.com/3d-models/furry-kobold-base-ae17d2770b7e498db33c05675db17724</option>
+                    <option value="/models/generic_productfemale_dog_furry.glb">Dog Lady https://sketchfab.com/3d-models/generic-productfemale-dog-furry-af533b732d3b42408cfdbdb6abcb7c94</option>
                 </select>
             </div>
 

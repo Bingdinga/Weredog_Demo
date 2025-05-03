@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('dressing-room-canvas');
     const loadingOverlay = document.getElementById('loading-overlay');
     const productSelect = document.getElementById('product-select');
+    const mannequinSelect = document.getElementById('mannequin-select');
     const productName = document.getElementById('product-name');
     const productPrice = document.getElementById('product-price');
     const productDescription = document.getElementById('product-description');
@@ -54,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setupScene();
 
         // Load mannequin
-        loadMannequin();
+        loadMannequin(mannequinSelect.value);
 
         // Fetch and populate product dropdown
         fetchProducts();
@@ -129,28 +130,58 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Load mannequin model
-    function loadMannequin() {
-        // You need to provide a mannequin model
-        // For testing, we'll use a simple default placeholder
+    function loadMannequin(modelPath) {
+        // Remove existing mannequin if any
+        if (mannequin) {
+            scene.remove(mannequin);
+            mannequin = null;
+        }
+
         const loader = new THREE.GLTFLoader();
 
-        // Load a basic humanoid mannequin model
-        // Note: You'll need to add this file to your project
+        // Show loading overlay
+        loadingOverlay.classList.remove('hide');
+
         loader.load(
-            '/models/mannequin.glb',
+            modelPath,
             (gltf) => {
                 mannequin = gltf.scene;
                 scene.add(mannequin);
 
-                // Center the mannequin
+                // Get the bounding box to determine size
                 const box = new THREE.Box3().setFromObject(mannequin);
+                const size = box.getSize(new THREE.Vector3());
                 const center = box.getCenter(new THREE.Vector3());
-                mannequin.position.x = -center.x;
-                mannequin.position.y = 0; // Keep the feet on the ground
-                mannequin.position.z = -center.z;
 
-                let scale = 0.3;
+                // Calculate appropriate scale based on the model's height
+                const height = size.y;
+
+                // Target height for mannequin (adjust this value as needed)
+                const targetHeight = 2.5; // Example: aim for 2.5 units tall
+
+                // Calculate scale to achieve target height
+                let scale = targetHeight / height;
+
+                // You can add specific scaling for different models if needed
+                if (modelPath.includes('male')) {
+                    scale *= 1.1; // Make male mannequin slightly taller
+                } else if (modelPath.includes('female')) {
+                    scale *= 0.95; // Make female mannequin slightly shorter
+                } else if (modelPath.includes('athletic')) {
+                    scale *= 1.05; // Athletic mannequin slightly taller
+                }
+
+                // Apply the scale
                 mannequin.scale.set(scale, scale, scale);
+
+                // Recalculate center after scaling
+                const scaledBox = new THREE.Box3().setFromObject(mannequin);
+                const scaledCenter = scaledBox.getCenter(new THREE.Vector3());
+
+                // Position mannequin
+                mannequin.position.x = -scaledCenter.x;
+                mannequin.position.y = 0; // Keep the feet on the ground
+                mannequin.position.z = -scaledCenter.z;
 
                 // Set up shadows
                 mannequin.traverse(node => {
@@ -162,6 +193,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Hide loading overlay
                 loadingOverlay.classList.add('hide');
+
+                // Log for debugging
+                console.log(`Mannequin loaded: ${modelPath}`);
+                console.log(`Original height: ${height.toFixed(2)}, Scale: ${scale.toFixed(2)}`);
             },
             (xhr) => {
                 // Loading progress
@@ -488,6 +523,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Reset button
         resetButton.addEventListener('click', resetProductPosition);
+
+        mannequinSelect.addEventListener('change', (e) => {
+            // Save current product if any
+            const currentProductId = productSelect.value;
+
+            // Load new mannequin
+            loadMannequin(e.target.value);
+
+            // Restore product if one was selected
+            if (currentProductId && productModels[currentProductId]) {
+                // Small delay to ensure mannequin is loaded
+                setTimeout(() => {
+                    loadProduct(productModels[currentProductId].modelPath);
+                }, 500);
+            }
+        });
 
         // Key controls for product movement
         window.addEventListener('keydown', (e) => {
