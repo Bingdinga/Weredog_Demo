@@ -539,6 +539,12 @@ document.addEventListener('DOMContentLoaded', () => {
             // Save current product if any
             const currentProductId = productSelect.value;
 
+            // Remove existing product first
+            if (product) {
+                scene.remove(product);
+                product = null;
+            }
+
             // Load new mannequin
             loadMannequin(e.target.value);
 

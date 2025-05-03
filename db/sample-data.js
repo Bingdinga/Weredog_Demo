@@ -193,39 +193,39 @@ const seedDatabase = () => {
       // Penetrables - Premium (3 products)
       {
         name: 'Elite Touch',
-        description: 'High-end premium stroker with warming function, adjustable suction control, and ultra-soft platinum silicone interior with specialized textures.',
+        description: 'High-end premium stroker with warming function, adjustable suction control, and ultra-soft platinum silicone interior with specialized textures. CREDIT: https://cults3d.com/en/3d-model/naughties/stroker3-pack',
         price: 149.99,
         stock_quantity: 20,
         category_id: categoryIds['Premium'],
         images: ['/img/elite_front.jpg', '/img/elite_detail.jpg', '/img/elite_case.jpg'],
         models: [
-          { resolution: 'high', path: '/models/high/elite_stroker.glb', file_size: 5120 },
+          { resolution: 'high', path: '/models/high/ballexample.glb', file_size: 5120 },
           { resolution: 'medium', path: '/models/medium/elite_stroker.glb', file_size: 2560 },
           { resolution: 'low', path: '/models/low/elite_stroker.glb', file_size: 1280 }
         ]
       },
       {
         name: 'Luxury Experience',
-        description: 'Our flagship product featuring app-controlled vibration patterns, heated interior, and customizable pressure settings for the ultimate luxury experience.',
+        description: 'Our flagship product featuring app-controlled vibration patterns, heated interior, and customizable pressure settings for the ultimate luxury experience.CREDIT: https://cults3d.com/en/3d-model/naughties/stroker3-pack',
         price: 199.99,
         stock_quantity: 10,
         category_id: categoryIds['Premium'],
         images: ['/img/luxury_product.jpg', '/img/luxury_app.jpg', '/img/luxury_case.jpg'],
         models: [
-          { resolution: 'high', path: '/models/high/luxury_exp.glb', file_size: 5500 },
+          { resolution: 'high', path: '/models/high/fineexample.glb', file_size: 5500 },
           { resolution: 'medium', path: '/models/medium/luxury_exp.glb', file_size: 2750 },
           { resolution: 'low', path: '/models/low/luxury_exp.glb', file_size: 1375 }
         ]
       },
       {
         name: 'Artisan Collection',
-        description: 'Limited edition hand-crafted piece featuring artisanal details, custom marbled platinum silicone, and collector\'s display case with certificate of authenticity.',
+        description: 'Limited edition hand-crafted piece featuring artisanal details, custom marbled platinum silicone, and collector\'s display case with certificate of authenticity.CREDIT: https://cults3d.com/en/3d-model/naughties/stroker3-pack',
         price: 249.99,
         stock_quantity: 5,
         category_id: categoryIds['Premium'],
         images: ['/img/artisan_product.jpg', '/img/artisan_marble.jpg', '/img/artisan_case.jpg'],
         models: [
-          { resolution: 'high', path: '/models/high/artisan_model.glb', file_size: 6000 },
+          { resolution: 'high', path: '/models/high/coarseexample.glb', file_size: 6000 },
           { resolution: 'medium', path: '/models/medium/artisan_model.glb', file_size: 3000 },
           { resolution: 'low', path: '/models/low/artisan_model.glb', file_size: 1500 }
         ]

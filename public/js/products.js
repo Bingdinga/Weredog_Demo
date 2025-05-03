@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentSort = 'featured';
     let currentSearch = '';
     let currentPage = 1;
-    const productsPerPage = 12;
+    const productsPerPage = 10;
 
     // Initialize
     loadCategories();

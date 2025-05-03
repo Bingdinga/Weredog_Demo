@@ -133,7 +133,7 @@ class ProductCardModel {
 
         // Get the maximum dimension
         const maxDim = Math.max(size.x, size.y, size.z);
-        const scaleFactor = 2 / maxDim; // Smaller scale for cards
+        const scaleFactor = 4 / maxDim; // Smaller scale for cards
 
         this.model.scale.set(scaleFactor, scaleFactor, scaleFactor);
 
