@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Management | Weredog Demo</title>
+    <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="/">Weredog Demo</a>
+            </div>
+            <ul class="nav-links" id="nav-links">
+                <!-- Navigation will be dynamically loaded here -->
+            </ul>
+        </nav>
+    </header>
+
+    <div class="admin-dashboard">
+        <aside class="admin-sidebar">
+            <h2>Admin Panel</h2>
+            <nav class="admin-sidebar-nav">
+                <a href="/admin">Dashboard</a>
+                <a href="/admin/inventory">Inventory</a>
+                <a href="/admin/orders" class="active">Orders</a>
+                <a href="/admin/analytics">Analytics</a>
+                <a href="/admin/discounts">Discounts</a>
+            </nav>
+        </aside>
+
+        <main class="admin-content">
+            <div class="admin-content-header">
+                <h1>Order Management</h1>
+            </div>
+
+            <!-- Order Filters -->
+            <div class="order-filters">
+                <select id="status-filter" class="form-control">
+                    <option value="">All Statuses</option>
+                    <option value="pending">Pending</option>
+                    <option value="processing">Processing</option>
+                    <option value="shipped">Shipped</option>
+                    <option value="delivered">Delivered</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+
+                <input type="date" id="start-date-filter" class="form-control">
+                <input type="date" id="end-date-filter" class="form-control">
+                
+                <button id="apply-filters" class="btn">Apply Filters</button>
+                <button id="reset-filters" class="btn btn-light">Reset</button>
+            </div>
+
+            <!-- Orders Table -->
+            <table class="admin-table" id="orders-table">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Status</th>
+                        <th>Total Amount</th>
+                        <th>Items</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="orders-table-body">
+                    <!-- Orders will be loaded here -->
+                </tbody>
+            </table>
+
+            <!-- Pagination -->
+            <div class="pagination" id="pagination">
+                <!-- Pagination controls will be added here -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Order Detail Modal -->
+    <div id="order-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Order Details</h2>
+            <div id="order-details">
+                <!-- Order details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Weredog Demo. All rights reserved.</p>
+    </footer>
+
+    <script type="module" src="/js/shared.js"></script>
+    <script type="module" src="/js/admin/orders.js"></script>
+    <a href="#" class="back-to-top" id="backToTop">↑</a>
+    <script type="module" src="/js/layout.js"></script>
+    <script type="module" src="/js/utils/navigation.js"></script>
+</body>
+</html>

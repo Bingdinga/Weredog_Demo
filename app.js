@@ -68,10 +68,12 @@ app.use('/api/payment', paymentRoutes);
 const adminInventoryRoutes = require('./api/admin/inventory');
 const adminAnalyticsRoutes = require('./api/admin/analytics');
 const adminUsersRoutes = require('./api/admin/users');
+const adminOrdersRoutes = require('./api/admin/orders');
 const adminDiscountsRoutes = require('./api/admin/discounts');
 app.use('/api/admin/inventory', authMiddleware, adminMiddleware, adminInventoryRoutes);
 app.use('/api/admin/analytics', authMiddleware, adminMiddleware, adminAnalyticsRoutes);
 app.use('/api/admin/users', authMiddleware, adminMiddleware, adminUsersRoutes);
+app.use('/api/admin/orders', authMiddleware, adminMiddleware, adminOrdersRoutes);
 app.use('/api/admin/discounts', authMiddleware, adminMiddleware, adminDiscountsRoutes);
 
 // Serve HTML views
