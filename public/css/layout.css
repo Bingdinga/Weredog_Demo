@@ -215,3 +215,54 @@ footer {
         background-color: var(--color-accent);
     }
 }
+
+/* Dropdown navigation styles */
+.nav-dropdown {
+    position: relative;
+}
+
+.dropdown-trigger {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: var(--color-dark-accent);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-md);
+    min-width: 200px;
+    z-index: 1000;
+}
+
+.nav-dropdown:hover .dropdown-menu {
+    display: block;
+}
+
+.dropdown-menu li {
+    list-style: none;
+}
+
+.dropdown-menu a {
+    display: block;
+    padding: 0.75rem 1rem;
+    color: var(--color-text);
+    white-space: nowrap;
+    transition: background-color var(--transition-speed);
+}
+
+.dropdown-menu a:hover {
+    background-color: var(--color-darker);
+    color: var(--color-primary);
+}
+
+/* Fix for nav links in dropdowns */
+.nav-dropdown .nav-links {
+    display: block;
+}

@@ -55,6 +55,8 @@ const wishlistRoutes = require('./api/wishlist');
 const orderRoutes = require('./api/orders');
 const paymentRoutes = require('./api/payment');
 
+const adminInventoryRoutes = require('./api/admin/inventory');
+
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
@@ -62,6 +64,8 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/payment', paymentRoutes);
+
+app.use('/api/admin/inventory', authMiddleware, adminMiddleware, adminInventoryRoutes);
 
 // Admin routes will be added later
 // const adminInventoryRoutes = require('./api/admin/inventory');
