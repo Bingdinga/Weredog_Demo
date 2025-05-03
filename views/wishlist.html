@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wishlist | Weredog Demo</title>
+    <link rel="stylesheet" href="/css/main.css">
+</head>
+
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="/">Weredog Demo</a>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/products">Products</a></li>
+                <li><a href="/dressing-room">Dressing Room</a></li>
+                <li><a href="/cart">Cart <span id="cart-count" class="cart-count">0</span></a></li>
+                <li><a href="/account">Account</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h1>My Wishlist</h1>
+        
+        <div class="wishlist-content" id="wishlist-content">
+            <!-- Wishlist items will be dynamically loaded here -->
+            <div class="loading-message">Loading your wishlist...</div>
+        </div>
+    </div>
+
+    <!-- Wishlist item template -->
+    <template id="wishlist-item-template">
+        <div class="product-card" data-wishlist-id="">
+            <div class="product-model-container" style="height: 200px;">
+                <!-- 3D model will be rendered here -->
+            </div>
+            <div class="product-info">
+                <h3 class="product-title"></h3>
+                <p class="product-price"></p>
+                <div class="product-actions">
+                    <a href="" class="btn">View Details</a>
+                    <button class="btn btn-accent remove-from-wishlist" title="Remove from Wishlist">Remove</button>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Empty wishlist template -->
+    <template id="empty-wishlist-template">
+        <div class="empty-state">
+            <h2>Your Wishlist is Empty</h2>
+            <p>Add items to your wishlist while browsing our products.</p>
+            <a href="/products" class="btn">Browse Products</a>
+        </div>
+    </template>
+
+    <footer>
+        <p>&copy; 2025 Weredog Demo. All rights reserved.</p>
+    </footer>
+
+    <!-- Three.js scripts loaded as non-module scripts -->
+    <script src="/js/lib/three/three.min.js"></script>
+    <script src="/js/lib/three/GLTFLoader.js"></script>
+    <!-- Module scripts -->
+    <script type="module" src="/js/shared.js"></script>
+    <script type="module" src="/js/wishlist.js"></script>
+    <a href="#" class="back-to-top" id="backToTop">↑</a>
+    <script type="module" src="/js/layout.js"></script>
+</body>
+
+</html>

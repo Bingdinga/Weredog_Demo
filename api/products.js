@@ -9,7 +9,11 @@ const path = require('path');
 // Get all products
 router.get('/', (req, res) => {
   try {
-    const products = db.prepare('SELECT * FROM products').all();
+    const products = db.prepare(`
+      SELECT product_id, name, description, price, stock_quantity, 
+             category_id, created_at, use_existing_texture 
+      FROM products
+  `).all();
     res.json(products);
   } catch (error) {
     console.error('Error fetching products:', error);
@@ -90,11 +94,18 @@ router.get('/:id', (req, res) => {
     const productId = req.params.id;
 
     // Get product details
-    const product = db.prepare('SELECT * FROM products WHERE product_id = ?').get(productId);
-
+    const product = db.prepare(`
+      SELECT *, use_existing_texture 
+      FROM products 
+      WHERE product_id = ?
+  `).get(productId);
     if (!product) {
       return res.status(404).json({ error: 'Product not found' });
     }
+
+    console.log(`Product ${productId} data:`, product); // Debug log
+    console.log(`use_existing_texture value:`, product.use_existing_texture); // Debug log
+
 
     // Get product images
     const images = db.prepare('SELECT * FROM product_images WHERE product_id = ?').all(productId);

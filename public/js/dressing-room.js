@@ -1,4 +1,4 @@
-import { applyRandomMatteMaterial } from '/js/utils/materialHelper.js';
+import { applyMaterialToModel } from '/js/utils/materialHelper.js';
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let mannequin, product;
     let productModels = {};
     let currentProductId = null;
+    let productDataCache = {};
 
     // Elements
     const canvas = document.getElementById('dressing-room-canvas');
@@ -281,6 +282,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     fetch(`/api/products/${product.product_id}`)
                         .then(response => response.json())
                         .then(productDetails => {
+
+                            // Store the full product data including the texture flag
+                            productDataCache[product.product_id] = productDetails;
+
                             if (productDetails.models && productDetails.models.length > 0) {
                                 const highResModel = productDetails.models.find(m => m.resolution === 'high');
 
@@ -290,7 +295,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                         name: product.name,
                                         price: product.price,
                                         description: product.description,
-                                        modelPath: highResModel.model_path
+                                        modelPath: highResModel.model_path,
+                                        use_existing_texture: productDetails.use_existing_texture
                                     };
                                 }
                             }
@@ -369,8 +375,13 @@ document.addEventListener('DOMContentLoaded', () => {
             (gltf) => {
                 product = gltf.scene;
 
-                // Apply random material to all meshes
-                applyRandomMatteMaterial(product);
+                // Get the texture flag from the stored product data
+                const selectedProduct = productModels[currentProductId];
+                const useExistingTexture = selectedProduct ? Boolean(selectedProduct.use_existing_texture) : false;
+
+                console.log(`Dressing room: Product ${currentProductId}, useExistingTexture: ${useExistingTexture}`);
+
+                applyMaterialToModel(product, useExistingTexture);
 
                 scene.add(product);
 

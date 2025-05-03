@@ -480,39 +480,42 @@ const seedDatabase = () => {
       // Accessories - Cleaning Products (3 products)
       {
         name: 'Toy Cleaner Spray',
-        description: 'Specialized anti-bacterial toy cleaner for keeping your products safe and hygienic. Alcohol-free formula that\'s gentle on silicone and other materials.',
+        description: 'Specialized anti-bacterial toy cleaner for keeping your products safe and hygienic. Alcohol-free formula that\'s gentle on silicone and other materials. CREDIT: https://sketchfab.com/3d-models/spray-bottle-821d73fb6ff2472b813025aa82ddc385',
         price: 19.99,
         stock_quantity: 120,
         category_id: categoryIds['Cleaning Products'],
+        use_existing_texture: 1,
         images: ['/img/cleaner_bottle.jpg', '/img/cleaner_spray.jpg', '/img/cleaner_detail.jpg'],
         models: [
-          { resolution: 'high', path: '/models/high/cleaner_bottle.glb', file_size: 2048 },
+          { resolution: 'high', path: '/models/high/spray_bottle.glb', file_size: 2048 },
           { resolution: 'medium', path: '/models/medium/cleaner_bottle.glb', file_size: 1024 },
           { resolution: 'low', path: '/models/low/cleaner_bottle.glb', file_size: 512 }
         ]
       },
       {
         name: 'UV Sanitizing Case',
-        description: 'Portable sanitizing case that uses UV-C light to eliminate 99.9% of bacteria and viruses from your toys. Features rechargeable battery and automatic 10-minute cleaning cycle.',
+        description: 'Portable sanitizing case that uses UV-C light to eliminate 99.9% of bacteria and viruses from your toys. Features rechargeable battery and automatic 10-minute cleaning cycle. CREDIT: https://sketchfab.com/3d-models/sci-fi-case-c59c954c785b4b4488362ef8bb866dfe',
         price: 49.99,
         stock_quantity: 40,
         category_id: categoryIds['Cleaning Products'],
+        use_existing_texture: 1,
         images: ['/img/uv_case.jpg', '/img/uv_open.jpg', '/img/uv_light.jpg'],
         models: [
-          { resolution: 'high', path: '/models/high/uv_case.glb', file_size: 3500 },
+          { resolution: 'high', path: '/models/high/sci_fi_case.glb', file_size: 3500 },
           { resolution: 'medium', path: '/models/medium/uv_case.glb', file_size: 1750 },
           { resolution: 'low', path: '/models/low/uv_case.glb', file_size: 875 }
         ]
       },
       {
         name: 'Silicone Renewing Powder',
-        description: 'Special formula powder that restores silicone toys to their original smooth, silky feel. Eliminates tackiness and extends the life of your premium toys.',
+        description: 'Special formula powder that restores silicone toys to their original smooth, silky feel. Eliminates tackiness and extends the life of your premium toys. https://sketchfab.com/3d-models/cosmetic-powder-da2c4f80b8f24eda8dbadafd633309ea',
         price: 14.99,
         stock_quantity: 90,
         category_id: categoryIds['Cleaning Products'],
+        use_existing_texture: 1,
         images: ['/img/powder_jar.jpg', '/img/powder_application.jpg', '/img/powder_texture.jpg'],
         models: [
-          { resolution: 'high', path: '/models/high/powder_jar.glb', file_size: 1800 },
+          { resolution: 'high', path: '/models/high/cosmetic_-_powder.glb', file_size: 1800 },
           { resolution: 'medium', path: '/models/medium/powder_jar.glb', file_size: 900 },
           { resolution: 'low', path: '/models/low/powder_jar.glb', file_size: 450 }
         ]
@@ -564,14 +567,15 @@ const seedDatabase = () => {
     products.forEach(product => {
       // Insert product
       const productResult = db.prepare(`
-        INSERT INTO products (name, description, price, stock_quantity, category_id)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO products (name, description, price, stock_quantity, category_id, use_existing_texture)
+        VALUES (?, ?, ?, ?, ?, ?)
       `).run(
         product.name,
         product.description,
         product.price,
         product.stock_quantity,
-        product.category_id
+        product.category_id,
+        product.use_existing_texture || 0  // Add this parameter
       );
 
       const productId = productResult.lastInsertRowid;

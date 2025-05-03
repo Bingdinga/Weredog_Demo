@@ -1,4 +1,4 @@
-import { applyRandomMatteMaterial } from '/js/utils/materialHelper.js';
+import { applyMaterialToModel } from '/js/utils/materialHelper.js';
 
 /**
  * Product Card 3D Model Renderer
@@ -8,6 +8,7 @@ class ProductCardModel {
     constructor(container, productId) {
         this.container = container;
         this.productId = productId;
+        this.useExistingTexture = false;
         this.scene = null;
         this.camera = null;
         this.renderer = null;
@@ -75,6 +76,7 @@ class ProductCardModel {
         fetch(`/api/products/${this.productId}`)
             .then(response => response.json())
             .then(product => {
+                this.useExistingTexture = Boolean(product.use_existing_texture);
                 // Check if product has models
                 if (product.models && product.models.length > 0) {
                     // Use low resolution for card previews to save bandwidth
@@ -96,23 +98,20 @@ class ProductCardModel {
 
     loadGLTFModel(modelPath) {
         const loader = new THREE.GLTFLoader();
-
         loader.load(
             modelPath,
             (gltf) => {
-                // Remove previous model if exists
                 if (this.model && this.scene) {
                     this.scene.remove(this.model);
                 }
 
                 this.model = gltf.scene;
 
-                // Apply random material to all meshes
-                applyRandomMatteMaterial(this.model);
+                // Use the texture flag
+                console.log(`Applying materials to product card model. useExistingTexture: ${this.useExistingTexture}`);
+                applyMaterialToModel(this.model, this.useExistingTexture);
 
                 this.scene.add(this.model);
-
-                // Center and scale the model
                 this.centerModel();
             },
             undefined,
@@ -122,6 +121,7 @@ class ProductCardModel {
             }
         );
     }
+
 
     centerModel() {
         if (!this.model) return;

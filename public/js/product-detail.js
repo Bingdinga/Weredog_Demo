@@ -1,4 +1,6 @@
-import { applyRandomMatteMaterial } from '/js/utils/materialHelper.js';
+import { applyMaterialToModel } from '/js/utils/materialHelper.js';
+let useExistingTexture = false;
+
 
 document.addEventListener('DOMContentLoaded', () => {
     // Get product ID from URL
@@ -13,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const modelLoadingOverlay = document.getElementById('model-loading-overlay');
     const productViewer = document.getElementById('product-viewer');
     const cycleResolutionBtn = document.getElementById('cycle-resolution');
+
 
     if (cycleResolutionBtn) {
         cycleResolutionBtn.addEventListener('click', cycleResolution);
@@ -38,31 +41,6 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('Three.js loaded successfully');
 
 
-
-    // Add fullscreen toggle functionality
-    // fullscreenToggle.addEventListener('click', toggleFullscreen);
-
-    // function toggleFullscreen() {
-    //     isFullscreen = !isFullscreen;
-
-    //     if (isFullscreen) {
-    //         productViewer.classList.add('fullscreen');
-    //         expandIcon.style.display = 'none';
-    //         collapseIcon.style.display = 'block';
-    //         document.body.style.overflow = 'hidden';
-    //     } else {
-    //         productViewer.classList.remove('fullscreen');
-    //         expandIcon.style.display = 'block';
-    //         collapseIcon.style.display = 'none';
-    //         document.body.style.overflow = '';
-    //     }
-
-    //     // Update rendering after transition
-    //     setTimeout(() => {
-    //         onWindowResize();
-    //     }, 100);
-    // }
-
     // Load product data from API
     function loadProductData() {
         fetch(`/api/products/${productId}`)
@@ -73,8 +51,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 return response.json();
             })
             .then(product => {
+
+                useExistingTexture = Boolean(product.use_existing_texture);
+                console.log(`Product ${product.name}: use_existing_texture = ${useExistingTexture}`);
+
                 // Set product details - existing code remains the same
                 document.title = `${product.name} | Weredog Demo`;
+                useExistingTexture = product.use_existing_texture;
                 productName.textContent = product.name;
                 productPrice.textContent = `$${product.price.toFixed(2)}`;
                 productDescription.textContent = product.description;
@@ -82,6 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     ? `${product.stock_quantity} items`
                     : 'Out of stock';
 
+                useExistingTexture = Boolean(product.use_existing_texture);
                 // Store models by resolution
                 if (product.models && product.models.length > 0) {
                     // Group models by resolution
@@ -199,8 +183,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 model.scale.set(scaleFactor, scaleFactor, scaleFactor);
                 model.position.sub(center.multiplyScalar(scaleFactor));
 
-                applyRandomMatteMaterial(model);
-
+                console.log(`Applying materials to model. useExistingTexture: ${useExistingTexture}`);
+                applyMaterialToModel(model, useExistingTexture);
+                
                 // Hide loading overlay
                 modelLoadingOverlay.classList.add('hide');
 

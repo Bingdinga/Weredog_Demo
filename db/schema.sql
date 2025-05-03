@@ -30,6 +30,7 @@ CREATE TABLE products (
     low_stock_threshold INTEGER DEFAULT 5,
     category_id INTEGER,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    use_existing_texture BOOLEAN DEFAULT 0,
     FOREIGN KEY (category_id) REFERENCES categories(category_id)
 );
 

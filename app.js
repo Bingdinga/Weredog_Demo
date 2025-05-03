@@ -40,6 +40,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Analytics tracking
 app.use(analyticsMiddleware);
 
+app.use((req, res, next) => {
+  // Remove problematic headers if they're being set elsewhere
+  res.removeHeader('Cross-Origin-Opener-Policy');
+  res.removeHeader('Origin-Agent-Cluster');
+  next();
+});
+
 // Import routes
 const authRoutes = require('./api/auth');
 const productRoutes = require('./api/products');
@@ -91,6 +98,10 @@ app.get('/register', (req, res) => {
 
 app.get('/cart', (req, res) => {
   res.sendFile(path.join(__dirname, 'views/cart.html'));
+});
+
+app.get('/wishlist', authMiddleware, (req, res) => {
+  res.sendFile(path.join(__dirname, 'views/wishlist.html'));
 });
 
 app.get('/dressing-room', (req, res) => {

@@ -109,6 +109,34 @@ function getMaterialType() {
 }
 
 /**
+ * Apply material based on flag
+ * @param {Object} modelObject - The 3D model to apply materials to
+ * @param {boolean} preserveTextures - Whether to preserve existing textures
+ */
+export function applyMaterialToModel(modelObject, preserveTextures = false) {
+    console.log(`Applying materials. Preserve textures: ${preserveTextures}`);
+
+    if (preserveTextures) {
+        // Preserve existing materials and textures
+        modelObject.traverse((node) => {
+            if (node.isMesh && node.material) {
+                console.log('Preserving existing material on mesh:', node.name);
+                // Keep existing material but ensure it's visible
+                if (node.material.emissive) {
+                    node.material.emissive.setHex(0x333333);
+                }
+                // Make sure the material is ready for rendering
+                node.material.needsUpdate = true;
+            }
+        });
+    } else {
+        // Apply random matte material
+        console.log('Applying random matte materials');
+        applyRandomMatteMaterial(modelObject);
+    }
+}
+
+/**
  * Apply random matte material to all meshes in a model
  * @param {Object} modelObject - The 3D model to apply materials to
  */
