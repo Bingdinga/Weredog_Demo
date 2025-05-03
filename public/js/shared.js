@@ -62,41 +62,48 @@ function updateNavigation() {
     fetch('/api/auth/check')
         .then(response => response.json())
         .then(data => {
+            // Only run this code if the account link exists (customer view)
             const accountLink = document.querySelector('a[href="/account"]');
-            const navItem = accountLink.closest('li');
 
-            if (data.authenticated && data.user) {
-                const displayName = data.user.first_name || data.user.username;
-                accountLink.textContent = `Hi, ${displayName}`;
-                accountLink.classList.add('authenticated');
+            if (accountLink) {
+                const navItem = accountLink.closest('li');
 
-                // Create dropdown menu if it doesn't exist
-                if (!navItem.querySelector('.user-dropdown')) {
-                    const dropdown = document.createElement('div');
-                    dropdown.className = 'user-dropdown';
-                    dropdown.innerHTML = `
-                        <a href="/account">Account Settings</a>
-                        <a href="/account#orders">Order History</a>
-                        <a href="/wishlist">Wishlist</a>
-                        <a href="#" id="dropdown-logout">Logout</a>
-                    `;
-                    navItem.appendChild(dropdown);
+                if (data.authenticated && data.user) {
+                    const displayName = data.user.first_name || data.user.username;
+                    accountLink.textContent = `Hi, ${displayName}`;
+                    accountLink.classList.add('authenticated');
 
-                    // Add dropdown logout handler
-                    dropdown.querySelector('#dropdown-logout').addEventListener('click', (e) => {
-                        e.preventDefault();
-                        logout();
-                    });
+                    // Create dropdown menu if it doesn't exist
+                    if (!navItem.querySelector('.user-dropdown')) {
+                        const dropdown = document.createElement('div');
+                        dropdown.className = 'user-dropdown';
+                        dropdown.innerHTML = `
+                            <a href="/account">Account Settings</a>
+                            <a href="/account#orders">Order History</a>
+                            <a href="/wishlist">Wishlist</a>
+                            <a href="#" id="dropdown-logout">Logout</a>
+                        `;
+                        navItem.appendChild(dropdown);
+
+                        // Add dropdown logout handler
+                        dropdown.querySelector('#dropdown-logout').addEventListener('click', (e) => {
+                            e.preventDefault();
+                            logout();
+                        });
+                    }
+                } else {
+                    accountLink.textContent = 'Account';
+                    accountLink.classList.remove('authenticated');
+
+                    // Remove dropdown if it exists
+                    const dropdown = navItem.querySelector('.user-dropdown');
+                    if (dropdown) {
+                        dropdown.remove();
+                    }
                 }
             } else {
-                accountLink.textContent = 'Account';
-                accountLink.classList.remove('authenticated');
-
-                // Remove dropdown if it exists
-                const dropdown = navItem.querySelector('.user-dropdown');
-                if (dropdown) {
-                    dropdown.remove();
-                }
+                // Log for debugging - this means we're on an admin page
+                console.log('No account link found - likely on admin page');
             }
         })
         .catch(error => {

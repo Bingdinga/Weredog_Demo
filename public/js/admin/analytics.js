@@ -159,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Create customer insights chart
+    // Create customer insights charts
     function createCustomerInsightsChart(data) {
         const ctx = document.getElementById('customer-insights-chart').getContext('2d');
 
@@ -167,38 +167,101 @@ document.addEventListener('DOMContentLoaded', () => {
             customerInsightsChart.destroy();
         }
 
-        customerInsightsChart = new Chart(ctx, {
-            type: 'doughnut',
+        // Create two bar charts for customer insights
+        const ordersCtx = document.getElementById('customer-orders-chart').getContext('2d');
+        const spendingCtx = document.getElementById('customer-spending-chart').getContext('2d');
+
+        // Customer orders distribution chart
+        new Chart(ordersCtx, {
+            type: 'bar',
             data: {
-                labels: ['Average Order Value', 'Average Customer Value', 'Orders per Customer'],
+                labels: data.orderDistribution.map(d => d.order_range),
                 datasets: [{
-                    data: [data.average_order_value, data.avg_customer_value, data.avg_orders_per_customer],
-                    backgroundColor: [
-                        'rgba(142, 45, 226, 0.7)',
-                        'rgba(255, 45, 85, 0.7)',
-                        'rgba(52, 152, 219, 0.7)'
-                    ],
-                    borderColor: [
-                        'rgba(142, 45, 226, 1)',
-                        'rgba(255, 45, 85, 1)',
-                        'rgba(52, 152, 219, 1)'
-                    ],
+                    label: 'Number of Customers',
+                    data: data.orderDistribution.map(d => d.customer_count),
+                    backgroundColor: 'rgba(142, 45, 226, 0.7)',
+                    borderColor: 'rgba(142, 45, 226, 1)',
                     borderWidth: 1
                 }]
             },
             options: {
                 responsive: true,
                 plugins: {
-                    legend: {
-                        position: 'right',
-                    },
                     title: {
                         display: true,
-                        text: 'Customer Insights Overview'
+                        text: 'Customer Order Frequency Distribution'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
                     }
                 }
             }
         });
+
+        // Customer spending distribution chart
+        new Chart(spendingCtx, {
+            type: 'bar',
+            data: {
+                labels: data.spendingDistribution.map(d => d.spending_range),
+                datasets: [{
+                    label: 'Number of Customers',
+                    data: data.spendingDistribution.map(d => d.customer_count),
+                    backgroundColor: 'rgba(255, 45, 85, 0.7)',
+                    borderColor: 'rgba(255, 45, 85, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Customer Spending Distribution'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+
+        // Update the stats display
+        document.getElementById('total-customers-insight').textContent = data.stats.total_customers || '0';
+        document.getElementById('avg-orders-per-customer').textContent = (data.stats.avg_orders_per_customer || 0).toFixed(1);
+        document.getElementById('avg-customer-value').textContent = `$${(data.stats.avg_customer_value || 0).toFixed(2)}`;
+
+        // Add median values
+        if (!document.getElementById('median-orders-per-customer')) {
+            const insightsGrid = document.querySelector('.insights-grid');
+            insightsGrid.innerHTML += `
+            <div class="insight-card">
+                <h4>Median Orders per Customer</h4>
+                <p id="median-orders-per-customer">0</p>
+            </div>
+            <div class="insight-card">
+                <h4>Median Customer Value</h4>
+                <p id="median-customer-value">$0.00</p>
+            </div>
+            <div class="insight-card">
+                <h4>Mean Order Value</h4>
+                <p id="mean-order-value">$0.00</p>
+            </div>
+        `;
+        }
+
+        document.getElementById('median-orders-per-customer').textContent = (data.stats.median_orders_per_customer || 0).toFixed(1);
+        document.getElementById('median-customer-value').textContent = `$${(data.stats.median_customer_value || 0).toFixed(2)}`;
+        document.getElementById('median-order-value').textContent = `$${(data.stats.median_order_value || 0).toFixed(2)}`;
     }
 
     // Display top products table

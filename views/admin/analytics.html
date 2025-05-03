@@ -66,6 +66,35 @@
                 <button id="refresh-data" class="btn">Apply Filter</button>
             </div>
 
+            <!-- Customer Insights -->
+            <div class="dashboard-section">
+                <h2>Customer Insights</h2>
+                <div class="insights-grid">
+                    <div class="insight-card">
+                        <h4>Total Customers</h4>
+                        <p id="total-customers-insight">0</p>
+                    </div>
+                    <div class="insight-card">
+                        <h4>Avg. Orders per Customer</h4>
+                        <p id="avg-orders-per-customer">0</p>
+                    </div>
+                    <div class="insight-card">
+                        <h4>Avg. Customer Value</h4>
+                        <p id="avg-customer-value">$0.00</p>
+                    </div>
+                </div>
+
+                <!-- Customer Distribution Charts -->
+                <div class="charts-row">
+                    <div class="chart-card">
+                        <canvas id="customer-orders-chart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <canvas id="customer-spending-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
             <!-- Charts Section -->
             <div class="charts-container">
                 <div class="chart-card">
@@ -75,9 +104,6 @@
                 <div class="charts-row">
                     <div class="chart-card">
                         <canvas id="top-products-chart"></canvas>
-                    </div>
-                    <div class="chart-card">
-                        <canvas id="customer-insights-chart"></canvas>
                     </div>
                 </div>
             </div>

@@ -47,20 +47,28 @@ document.addEventListener('DOMContentLoaded', () => {
         const params = new URLSearchParams({
             page: currentPage,
             limit: 20,
-            status: statusFilter.value,
-            startDate: startDateFilter.value,
-            endDate: endDateFilter.value
+            status: statusFilter.value || '',
+            startDate: startDateFilter.value || '',
+            endDate: endDateFilter.value || ''
         });
 
         fetch(`/api/admin/orders?${params}`)
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
-                displayOrders(data.orders);
-                setupPagination(data.pagination);
+                console.log('Orders data:', data); // Debug log
+                displayOrders(data.orders || []);
+                setupPagination(data.pagination || { totalPages: 1 });
             })
             .catch(error => {
                 console.error('Error loading orders:', error);
                 showNotification('Error loading orders', 'error');
+                // Display empty table on error
+                ordersTableBody.innerHTML = '<tr><td colspan="7">Error loading orders</td></tr>';
             });
     }
 

@@ -35,6 +35,103 @@ const seedDatabase = () => {
         firstName: 'Store',
         lastName: 'Manager',
         role: 'manager'
+      },
+      // Additional customer accounts
+      {
+        username: 'alex_chen',
+        email: 'alex.chen@example.com',
+        password: 'Customer123!',
+        firstName: 'Alex',
+        lastName: 'Chen',
+        role: 'customer'
+      },
+      {
+        username: 'maria_garcia',
+        email: 'maria.garcia@example.com',
+        password: 'Customer123!',
+        firstName: 'Maria',
+        lastName: 'Garcia',
+        role: 'customer'
+      },
+      {
+        username: 'james_wilson',
+        email: 'james.wilson@example.com',
+        password: 'Customer123!',
+        firstName: 'James',
+        lastName: 'Wilson',
+        role: 'customer'
+      },
+      {
+        username: 'sarah_johnson',
+        email: 'sarah.johnson@example.com',
+        password: 'Customer123!',
+        firstName: 'Sarah',
+        lastName: 'Johnson',
+        role: 'customer'
+      },
+      {
+        username: 'raj_patel',
+        email: 'raj.patel@example.com',
+        password: 'Customer123!',
+        firstName: 'Raj',
+        lastName: 'Patel',
+        role: 'customer'
+      },
+      {
+        username: 'emma_turner',
+        email: 'emma.turner@example.com',
+        password: 'Customer123!',
+        firstName: 'Emma',
+        lastName: 'Turner',
+        role: 'customer'
+      },
+      {
+        username: 'kevin_lee',
+        email: 'kevin.lee@example.com',
+        password: 'Customer123!',
+        firstName: 'Kevin',
+        lastName: 'Lee',
+        role: 'customer'
+      },
+      {
+        username: 'sophia_brown',
+        email: 'sophia.brown@example.com',
+        password: 'Customer123!',
+        firstName: 'Sophia',
+        lastName: 'Brown',
+        role: 'customer'
+      },
+      {
+        username: 'marcus_white',
+        email: 'marcus.white@example.com',
+        password: 'Customer123!',
+        firstName: 'Marcus',
+        lastName: 'White',
+        role: 'customer'
+      },
+      {
+        username: 'lily_zhang',
+        email: 'lily.zhang@example.com',
+        password: 'Customer123!',
+        firstName: 'Lily',
+        lastName: 'Zhang',
+        role: 'customer'
+      },
+      {
+        username: 'noah_davis',
+        email: 'noah.davis@example.com',
+        password: 'Customer123!',
+        firstName: 'Noah',
+        lastName: 'Davis',
+        role: 'customer'
+      },
+      {
+        username: 'aisha_khan',
+        email: 'aisha.khan@example.com',
+        password: 'Customer123!',
+        firstName: 'Aisha',
+        lastName: 'Khan',
+        role: 'customer'
       }
     ];
 
@@ -690,6 +787,157 @@ const seedDatabase = () => {
     });
 
     console.log('Reviews added successfully');
+
+    const customerAddresses = [
+      { userId: 4, city: 'San Francisco', state: 'CA' },
+      { userId: 5, city: 'Miami', state: 'FL' },
+      { userId: 6, city: 'Seattle', state: 'WA' },
+      { userId: 7, city: 'Boston', state: 'MA' },
+      { userId: 8, city: 'Denver', state: 'CO' },
+      { userId: 9, city: 'Atlanta', state: 'GA' },
+      { userId: 10, city: 'Portland', state: 'OR' },
+      { userId: 11, city: 'Dallas', state: 'TX' },
+      { userId: 12, city: 'Minneapolis', state: 'MN' },
+      { userId: 13, city: 'Charlotte', state: 'NC' },
+      { userId: 14, city: 'Nashville', state: 'TN' },
+      { userId: 15, city: 'Las Vegas', state: 'NV' }
+    ];
+
+    // Add random orders for testing (inside the seedDatabase function, after the reviews section)
+    const generateRandomOrders = () => {
+      const orderStatuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+      const paymentMethods = ['credit_card', 'paypal', 'debit_card'];
+      const cities = ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix', 'Philadelphia'];
+      const states = ['NY', 'CA', 'IL', 'TX', 'AZ', 'PA'];
+
+      // Generate 50 random orders
+      for (let i = 0; i < 50; i++) {
+        // Random date within the last 3 years
+        const randomDaysAgo = Math.floor(Math.random() * 1095); // 3 years * 365 days
+        const randomDate = new Date();
+        randomDate.setDate(randomDate.getDate() - randomDaysAgo);
+
+        // Random user ID
+        // Random user ID (inside the generateRandomOrders function)
+        const customerUsers = Array.from({ length: 15 }, (_, i) => i + 1); // 15 total users now
+        const userId = customerUsers[Math.floor(Math.random() * customerUsers.length)];
+
+        // Random products and quantities
+        const numberOfItems = Math.floor(Math.random() * 4) + 1; // 1-4 items per order
+        const orderItems = [];
+        let totalAmount = 0;
+
+        for (let j = 0; j < numberOfItems; j++) {
+          const randomProductId = Math.floor(Math.random() * products.length) + 1;
+          const randomProduct = products.find(p => p.productId === randomProductId) || products[0];
+          const quantity = Math.floor(Math.random() * 3) + 1; // 1-3 quantity
+          const itemPrice = randomProduct.price;
+          const itemSubtotal = itemPrice * quantity;
+
+          orderItems.push({
+            productId: randomProductId,
+            quantity: quantity,
+            price: itemPrice
+          });
+
+          totalAmount += itemSubtotal;
+        }
+
+        // Random discount (20% chance)
+        const applyDiscount = Math.random() < 0.2;
+        let discountAmount = 0;
+        let discountCodeId = null;
+
+        if (applyDiscount) {
+          discountAmount = Math.floor(totalAmount * 0.10); // 10% discount
+          discountCodeId = 1; // Using WELCOME15 discount code
+        }
+
+        const finalAmount = totalAmount - discountAmount;
+
+        // Random status (weighted towards delivered for older orders)
+        let statusIndex;
+        if (randomDaysAgo > 60) {
+          // Orders older than 60 days
+          statusIndex = Math.random() < 0.9 ? 3 : Math.floor(Math.random() * 5); // 90% delivered
+        } else if (randomDaysAgo > 30) {
+          // Orders 30-60 days old
+          statusIndex = Math.random() < 0.7 ? 2 : Math.floor(Math.random() * 4); // 70% shipped, rest random (except cancelled)
+        } else {
+          // Recent orders
+          statusIndex = Math.floor(Math.random() * 4); // All except cancelled
+        }
+        const status = orderStatuses[statusIndex];
+
+        // Random city
+        const userAddress = customerAddresses.find(a => a.userId === userId) ||
+          { city: cities[Math.floor(Math.random() * cities.length)], state: states[Math.floor(Math.random() * states.length)] };
+        const city = userAddress.city;
+        const state = userAddress.state;
+
+        // Create order
+        const orderResult = db.prepare(`
+      INSERT INTO orders (
+        user_id, status, total_amount, discount_amount, 
+        shipping_address, billing_address, payment_method, 
+        discount_code_id, created_at
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+          userId,
+          status,
+          finalAmount,
+          discountAmount,
+          `${Math.floor(Math.random() * 900) + 100} ${['Main', 'Oak', 'Pine', 'Maple', 'Cedar'][Math.floor(Math.random() * 5)]} Street, ${city}, ${state} ${Math.floor(Math.random() * 90000) + 10000}`,
+          `${Math.floor(Math.random() * 900) + 100} ${['Park', 'Lake', 'River', 'Hill', 'Mountain'][Math.floor(Math.random() * 5)]} Avenue, ${city}, ${state} ${Math.floor(Math.random() * 90000) + 10000}`,
+          paymentMethods[Math.floor(Math.random() * paymentMethods.length)],
+          discountCodeId,
+          randomDate.toISOString()
+        );
+
+        const orderId = orderResult.lastInsertRowid;
+
+        // Add order items
+        const insertOrderItem = db.prepare(`
+      INSERT INTO order_items (order_id, product_id, quantity, price)
+      VALUES (?, ?, ?, ?)
+    `);
+
+        // Update product stock and create inventory log
+        const updateStock = db.prepare(`
+      UPDATE products 
+      SET stock_quantity = stock_quantity - ? 
+      WHERE product_id = ?
+    `);
+
+        const insertInventoryLog = db.prepare(`
+      INSERT INTO inventory_log (
+        product_id, quantity_change, reason, reference_id, timestamp
+      )
+      VALUES (?, ?, ?, ?, ?)
+    `);
+
+        for (const item of orderItems) {
+          insertOrderItem.run(orderId, item.productId, item.quantity, item.price);
+
+          // Update stock for orders that are shipped or delivered
+          if (status === 'shipped' || status === 'delivered') {
+            updateStock.run(item.quantity, item.productId);
+            insertInventoryLog.run(
+              item.productId,
+              -item.quantity,
+              'order',
+              `order_${orderId}`,
+              randomDate.toISOString()
+            );
+          }
+        }
+      }
+    };
+
+    // Call the function to generate random orders
+    generateRandomOrders();
+    console.log('Random orders added successfully');
 
     // Create placeholder directories for images and models
     const publicDir = path.join(__dirname, '../public');
