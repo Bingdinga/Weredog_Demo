@@ -1,4 +1,6 @@
-// JavaScript for loading featured products
+// Updated /public/js/home-products.js
+import { ProductCardModel } from '/js/product-card-model.js';
+
 document.addEventListener('DOMContentLoaded', function () {
     // Load featured products from API
     fetch('/api/products/featured')
@@ -12,20 +14,30 @@ document.addEventListener('DOMContentLoaded', function () {
                     const productCard = document.createElement('div');
                     productCard.className = 'product-card';
 
-                    const imagePath = product.image_path || '/img/placeholder.png';
+                    // Create model container for 3D visualization
+                    const modelContainer = document.createElement('div');
+                    modelContainer.className = 'product-model-container';
+                    modelContainer.id = `product-model-${product.product_id}`;
+                    modelContainer.style.height = '200px';
+                    
+                    productCard.appendChild(modelContainer);
 
-                    productCard.innerHTML = `
-                        <div class="product-image">
-                            <img src="${imagePath}" alt="${product.name}">
-                        </div>
-                        <div class="product-info">
-                            <h3 class="product-title">${product.name}</h3>
-                            <p class="product-price">$${product.price.toFixed(2)}</p>
-                            <a href="/product/${product.product_id}" class="btn">View Details</a>
-                        </div>
+                    // Add product info
+                    const productInfo = document.createElement('div');
+                    productInfo.className = 'product-info';
+                    productInfo.innerHTML = `
+                        <h3 class="product-title">${product.name}</h3>
+                        <p class="product-price">$${product.price.toFixed(2)}</p>
+                        <a href="/product/${product.product_id}" class="btn">View Details</a>
                     `;
-
+                    
+                    productCard.appendChild(productInfo);
                     productGrid.appendChild(productCard);
+
+                    // Initialize 3D model with a small delay to ensure DOM is updated
+                    setTimeout(() => {
+                        new ProductCardModel(document.getElementById(`product-model-${product.product_id}`), product.product_id);
+                    }, 10);
                 });
             }
         })

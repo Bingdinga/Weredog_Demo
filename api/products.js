@@ -52,12 +52,12 @@ router.get('/categories', (req, res) => {
 // Get featured products
 router.get('/featured', (req, res) => {
   try {
-    // In a real app, you might have a 'featured' flag in the products table
-    // For now, we'll just return the first 4 products
+    // Use the SQLite random() function to get random products
     const featuredProducts = db.prepare(`
       SELECT p.*, pi.image_path 
       FROM products p
       LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_primary = 1
+      ORDER BY RANDOM()
       LIMIT 6
     `).all();
 
