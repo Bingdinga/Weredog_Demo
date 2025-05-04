@@ -141,3 +141,9 @@ coverage/
 # Ignore compiled JavaScript if using TypeScript
 # dist/
 # lib/
+
+#Ignore basic_proj_desc.md
+basic_proj_desc.md
+
+#Ignore Sample Data Script, too large
+db/sample-data.js
