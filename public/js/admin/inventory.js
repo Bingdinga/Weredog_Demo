@@ -9,10 +9,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const lowStockAlert = document.getElementById('low-stock-alert');
     const lowStockCount = document.getElementById('low-stock-count');
 
+
     // State
     let products = [];
     let filteredProducts = [];
     let pendingUpdates = {};
+    let categoryHierarchy = {};
 
     // Load data
     loadInventory();
@@ -34,12 +36,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Keep the default "All Categories" option
                 filterSelect.innerHTML = '<option value="">All Categories</option>';
 
+                // Build category hierarchy data structure
+                categoryHierarchy = {};
+
                 // Add main categories
                 categories.forEach(category => {
                     const mainOption = document.createElement('option');
                     mainOption.value = category.category_id;
                     mainOption.textContent = category.name;
                     filterSelect.appendChild(mainOption);
+
+                    // Store subcategory IDs for this parent
+                    categoryHierarchy[category.category_id] = [];
 
                     // Add subcategories without special formatting
                     if (category.subcategories && category.subcategories.length > 0) {
@@ -49,9 +57,14 @@ document.addEventListener('DOMContentLoaded', () => {
                             // No indentation or special formatting
                             subOption.textContent = subcat.name;
                             filterSelect.appendChild(subOption);
+
+                            // Add to hierarchy
+                            categoryHierarchy[category.category_id].push(subcat.category_id);
                         });
                     }
                 });
+
+                console.log('Category hierarchy:', categoryHierarchy);
             })
             .catch(error => {
                 console.error('Error loading categories:', error);
@@ -91,9 +104,25 @@ document.addEventListener('DOMContentLoaded', () => {
         const stockStatus = stockFilter.value;
 
         filteredProducts = products.filter(product => {
+            // Check if product matches search term
             const matchesSearch = product.name.toLowerCase().includes(searchTerm) ||
                 product.category_name?.toLowerCase().includes(searchTerm);
-            const matchesCategory = !categoryFilter || product.category_id == categoryFilter;
+
+            // Check if product matches category filter
+            let matchesCategory = true;
+            if (categoryFilter) {
+                // If the selected category is a parent category with subcategories
+                if (categoryHierarchy[categoryFilter] && categoryHierarchy[categoryFilter].length > 0) {
+                    // Match if product is in the parent category OR any of its subcategories
+                    matchesCategory = (product.category_id == categoryFilter) ||
+                        categoryHierarchy[categoryFilter].includes(Number(product.category_id));
+                } else {
+                    // Direct category match (for subcategories or categories without children)
+                    matchesCategory = product.category_id == categoryFilter;
+                }
+            }
+
+            // Check if product matches stock filter
             const matchesStock = stockStatus === 'all' ||
                 (stockStatus === 'low' && product.stock_quantity <= product.low_stock_threshold) ||
                 (stockStatus === 'ok' && product.stock_quantity > product.low_stock_threshold);
