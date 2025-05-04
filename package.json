@@ -4,7 +4,7 @@
   "description": "Weredog Demo",
   "main": "app.js",
   "scripts": {
-    "start": "NODE_ENV=production PORT=9000 node app.js",
+    "start": "NODE_ENV=production PORT=9000 INSECURE_COOKIES=true node app.js",
     "dev": "nodemon app.js",
     "reset-db": "node db/reset-and-seed.js",
     "test": "echo \"Error: no test specified\" && exit 1"
