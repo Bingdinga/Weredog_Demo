@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const resetButton = document.getElementById('reset-position');
 
     // Movement configuration
-    const moveSpeed = 0.05;
+    const moveSpeed = 0.02;
     const rotateSpeed = 0.05;
     const keyState = {
         ArrowUp: false,
@@ -44,7 +44,9 @@ document.addEventListener('DOMContentLoaded', () => {
         KeyW: false,
         KeyA: false,
         KeyS: false,
-        KeyD: false
+        KeyD: false,
+        KeyZ: false,
+        KeyX: false
     };
 
     // Initialize
@@ -468,6 +470,14 @@ document.addEventListener('DOMContentLoaded', () => {
             product.position.addScaledVector(cameraRight, moveSpeed);
         }
 
+        // Add vertical movement with Z and X keys
+        if (keyState.KeyZ) {
+            product.position.y += moveSpeed; // Move up
+        }
+        if (keyState.KeyX) {
+            product.position.y -= moveSpeed; // Move down
+        }
+
         // Rotate product
         if (keyState.KeyW) {
             product.rotation.x += rotateSpeed;
@@ -555,6 +565,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     loadProduct(productModels[currentProductId].modelPath);
                 }, 500);
             }
+
+            mannequinSelect.blur();
         });
 
         // Key controls for product movement
