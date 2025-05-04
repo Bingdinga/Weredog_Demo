@@ -147,3 +147,7 @@ basic_proj_desc.md
 
 #Ignore Sample Data Script, too large
 db/sample-data.js
+
+#Ignore DB troubleshooting utils
+utils/db-exporter.js
+utils/export-db.js

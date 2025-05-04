@@ -1,4 +1,5 @@
-// db/reset-and-seed.js
+// db/reset-and-seed.js - Fixed version
+
 const { db, resetDatabase } = require('./database');
 const path = require('path');
 const { exec } = require('child_process');
