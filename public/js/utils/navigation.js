@@ -8,7 +8,7 @@ function loadNavigation() {
         .then(response => response.json())
         .then(data => {
             const navLinks = document.getElementById('nav-links');
-            
+
             if (data.authenticated && (data.user.role === 'admin' || data.user.role === 'manager')) {
                 navLinks.innerHTML = getAdminNavigation(data.user);
             } else {
@@ -59,7 +59,8 @@ function getCustomerNavigation(authenticated) {
             </ul>
         </li>
     ` : `
-        <li><a href="/account">Account</a></li>
+        <li><a href="/login">Login</a></li>
+        <li><a href="/register">Sign Up</a></li>
     `;
 
     return `
