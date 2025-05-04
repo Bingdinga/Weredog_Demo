@@ -58,7 +58,7 @@ router.get('/featured', (req, res) => {
       SELECT p.*, pi.image_path 
       FROM products p
       LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_primary = 1
-      LIMIT 7
+      LIMIT 6
     `).all();
 
     res.json(featuredProducts);

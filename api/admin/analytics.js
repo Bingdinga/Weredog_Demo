@@ -84,75 +84,63 @@ router.get('/top-products', (req, res) => {
 // Get customer insights
 router.get('/customer-insights', (req, res) => {
   try {
+    // Simplified query without median calculations
     const stats = db.prepare(`
-      WITH customer_stats AS (
-        SELECT 
-          user_id,
-          COUNT(*) as order_count,
-          SUM(total_amount) as total_spent,
-          AVG(total_amount) as avg_order_value
-        FROM orders
-        WHERE status != 'cancelled'
-        GROUP BY user_id
-      )
       SELECT 
         COUNT(DISTINCT u.user_id) as total_customers,
-        AVG(COALESCE(cs.order_count, 0)) as avg_orders_per_customer,
-        AVG(COALESCE(cs.total_spent, 0)) as avg_customer_value,
-        AVG(COALESCE(cs.avg_order_value, 0)) as avg_order_value_per_customer,
-        COALESCE(PERCENTILE_CONT(cs.order_count, 0.5) WITHIN GROUP (ORDER BY cs.order_count), 0) as median_orders_per_customer,
-        COALESCE(PERCENTILE_CONT(cs.total_spent, 0.5) WITHIN GROUP (ORDER BY cs.total_spent), 0) as median_customer_value,
-        COALESCE(PERCENTILE_CONT(cs.avg_order_value, 0.5) WITHIN GROUP (ORDER BY cs.avg_order_value), 0) as median_order_value
+        (SELECT AVG(cnt)
+         FROM (SELECT COUNT(*) as cnt FROM orders WHERE status != 'cancelled' GROUP BY user_id)) as avg_orders_per_customer,
+        (SELECT AVG(sum_amt)
+         FROM (SELECT SUM(total_amount) as sum_amt FROM orders WHERE status != 'cancelled' GROUP BY user_id)) as avg_customer_value
       FROM users u
-      LEFT JOIN customer_stats cs ON u.user_id = cs.user_id
       WHERE u.role = 'customer'
     `).get();
 
-    // Get distribution data for charts
+    // Simple version of order distribution
     const orderDistribution = db.prepare(`
       SELECT 
         CASE 
-          WHEN order_count = 1 THEN '1 order'
-          WHEN order_count BETWEEN 2 AND 5 THEN '2-5 orders'
-          WHEN order_count BETWEEN 6 AND 10 THEN '6-10 orders'
-          WHEN order_count > 10 THEN '10+ orders'
-          ELSE '0 orders'
+          WHEN cnt = 0 THEN '0 orders'
+          WHEN cnt = 1 THEN '1 order'
+          WHEN cnt BETWEEN 2 AND 5 THEN '2-5 orders' 
+          WHEN cnt BETWEEN 6 AND 10 THEN '6-10 orders'
+          ELSE '10+ orders'
         END as order_range,
         COUNT(*) as customer_count
       FROM (
         SELECT 
           u.user_id,
-          COUNT(o.order_id) as order_count
+          COUNT(o.order_id) as cnt
         FROM users u
-        LEFT JOIN orders o ON u.user_id = o.user_id
-        WHERE u.role = 'customer' AND (o.status != 'cancelled' OR o.status IS NULL)
+        LEFT JOIN orders o ON u.user_id = o.user_id AND o.status != 'cancelled'
+        WHERE u.role = 'customer'
         GROUP BY u.user_id
       )
       GROUP BY order_range
-      ORDER BY customer_count DESC
     `).all();
 
+    // Simple version of spending distribution
     const spendingDistribution = db.prepare(`
       SELECT 
         CASE 
+          WHEN total_spent IS NULL THEN '$0'
           WHEN total_spent = 0 THEN '$0'
           WHEN total_spent BETWEEN 0.01 AND 100 THEN '$1-100'
           WHEN total_spent BETWEEN 101 AND 500 THEN '$101-500'
           WHEN total_spent BETWEEN 501 AND 1000 THEN '$501-1,000'
-          WHEN total_spent > 1000 THEN '$1,000+'
+          ELSE '$1,000+'
         END as spending_range,
         COUNT(*) as customer_count
       FROM (
         SELECT 
           u.user_id,
-          COALESCE(SUM(o.total_amount), 0) as total_spent
+          SUM(o.total_amount) as total_spent
         FROM users u
-        LEFT JOIN orders o ON u.user_id = o.user_id
-        WHERE u.role = 'customer' AND (o.status != 'cancelled' OR o.status IS NULL)
+        LEFT JOIN orders o ON u.user_id = o.user_id AND o.status != 'cancelled'
+        WHERE u.role = 'customer'
         GROUP BY u.user_id
       )
       GROUP BY spending_range
-      ORDER BY customer_count DESC
     `).all();
 
     res.json({
@@ -162,6 +150,7 @@ router.get('/customer-insights', (req, res) => {
     });
   } catch (error) {
     logger.error('Error fetching customer insights', error);
+    console.error('Detailed error:', error); // Add more detailed logging
     res.status(500).json({ error: 'Failed to fetch customer insights' });
   }
 });
