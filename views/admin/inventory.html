@@ -1,22 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventory Management | Weredog Demo</title>
     <link rel="stylesheet" href="/css/main.css">
 </head>
+
 <body>
-<header>
-    <nav>
-        <div class="logo">
-            <a href="/">Weredog Demo</a>
-        </div>
-        <ul class="nav-links" id="nav-links">
-            <!-- Navigation will be dynamically loaded here -->
-        </ul>
-    </nav>
-</header>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="/">Weredog Demo</a>
+            </div>
+            <ul class="nav-links" id="nav-links">
+                <!-- Navigation will be dynamically loaded here -->
+            </ul>
+        </nav>
+    </header>
 
     <div class="admin-dashboard">
         <aside class="admin-sidebar">
@@ -43,7 +45,7 @@
             <!-- Filters -->
             <div class="inventory-filters">
                 <input type="text" id="search-input" class="form-control" placeholder="Search products...">
-                
+
                 <select id="filter-select" class="form-control">
                     <option value="">All Categories</option>
                     <!-- Categories will be populated dynamically -->
@@ -82,6 +84,10 @@
 
     <script type="module" src="/js/admin/inventory.js"></script>
     <script type="module" src="/js/utils/navigation.js"></script>
+    <a href="#" class="back-to-top" id="backToTop">↑</a>
+    <script type="module" src="/js/layout.js"></script>
+
 
 </body>
+
 </html>

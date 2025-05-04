@@ -167,4 +167,23 @@ router.get('/check', (req, res) => {
   res.json({ authenticated: false });
 });
 
+// Logout
+router.post('/logout', (req, res) => {
+  try {
+    // Destroy the session
+    req.session.destroy(err => {
+      if (err) {
+        logger.error('Error destroying session:', err);
+        return res.status(500).json({ error: 'Failed to logout' });
+      }
+
+      res.clearCookie('connect.sid'); // Clear the session cookie
+      res.json({ success: true });
+    });
+  } catch (error) {
+    logger.error('Error logging out', error);
+    res.status(500).json({ error: 'Failed to logout' });
+  }
+});
+
 module.exports = router;
