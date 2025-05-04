@@ -10,139 +10,17 @@ const seedDatabase = () => {
   db.exec('BEGIN TRANSACTION');
 
   try {
-    // Add users with different roles
-    const users = [
-      {
-        username: 'admin',
-        email: 'admin@example.com',
-        password: 'Admin123!',
-        firstName: 'Admin',
-        lastName: 'User',
-        role: 'admin'
-      },
-      {
-        username: 'customer',
-        email: 'customer@example.com',
-        password: 'Customer123!',
-        firstName: 'Sample',
-        lastName: 'Customer',
-        role: 'customer'
-      },
-      {
-        username: 'manager',
-        email: 'manager@example.com',
-        password: 'Manager123!',
-        firstName: 'Store',
-        lastName: 'Manager',
-        role: 'manager'
-      },
-      // Additional customer accounts
-      {
-        username: 'alex_chen',
-        email: 'alex.chen@example.com',
-        password: 'Customer123!',
-        firstName: 'Alex',
-        lastName: 'Chen',
-        role: 'customer'
-      },
-      {
-        username: 'maria_garcia',
-        email: 'maria.garcia@example.com',
-        password: 'Customer123!',
-        firstName: 'Maria',
-        lastName: 'Garcia',
-        role: 'customer'
-      },
-      {
-        username: 'james_wilson',
-        email: 'james.wilson@example.com',
-        password: 'Customer123!',
-        firstName: 'James',
-        lastName: 'Wilson',
-        role: 'customer'
-      },
-      {
-        username: 'sarah_johnson',
-        email: 'sarah.johnson@example.com',
-        password: 'Customer123!',
-        firstName: 'Sarah',
-        lastName: 'Johnson',
-        role: 'customer'
-      },
-      {
-        username: 'raj_patel',
-        email: 'raj.patel@example.com',
-        password: 'Customer123!',
-        firstName: 'Raj',
-        lastName: 'Patel',
-        role: 'customer'
-      },
-      {
-        username: 'emma_turner',
-        email: 'emma.turner@example.com',
-        password: 'Customer123!',
-        firstName: 'Emma',
-        lastName: 'Turner',
-        role: 'customer'
-      },
-      {
-        username: 'kevin_lee',
-        email: 'kevin.lee@example.com',
-        password: 'Customer123!',
-        firstName: 'Kevin',
-        lastName: 'Lee',
-        role: 'customer'
-      },
-      {
-        username: 'sophia_brown',
-        email: 'sophia.brown@example.com',
-        password: 'Customer123!',
-        firstName: 'Sophia',
-        lastName: 'Brown',
-        role: 'customer'
-      },
-      {
-        username: 'marcus_white',
-        email: 'marcus.white@example.com',
-        password: 'Customer123!',
-        firstName: 'Marcus',
-        lastName: 'White',
-        role: 'customer'
-      },
-      {
-        username: 'lily_zhang',
-        email: 'lily.zhang@example.com',
-        password: 'Customer123!',
-        firstName: 'Lily',
-        lastName: 'Zhang',
-        role: 'customer'
-      },
-      {
-        username: 'noah_davis',
-        email: 'noah.davis@example.com',
-        password: 'Customer123!',
-        firstName: 'Noah',
-        lastName: 'Davis',
-        role: 'customer'
-      },
-      {
-        username: 'aisha_khan',
-        email: 'aisha.khan@example.com',
-        password: 'Customer123!',
-        firstName: 'Aisha',
-        lastName: 'Khan',
-        role: 'customer'
-      }
-    ];
+    const users = generateUsers(150); // Generate 150 total users
+
 
     users.forEach(user => {
       const saltRounds = 10;
       const passwordHash = bcrypt.hashSync(user.password, saltRounds);
 
       db.prepare(`
-        INSERT INTO users (username, email, password_hash, first_name, last_name, role)
-        VALUES (?, ?, ?, ?, ?, ?)
-      `).run(
+          INSERT INTO users (username, email, password_hash, first_name, last_name, role)
+          VALUES (?, ?, ?, ?, ?, ?)
+        `).run(
         user.username,
         user.email,
         passwordHash,
@@ -151,6 +29,7 @@ const seedDatabase = () => {
         user.role
       );
     });
+
 
     console.log('Users added successfully');
 
@@ -803,6 +682,70 @@ const seedDatabase = () => {
       { userId: 15, city: 'Las Vegas', state: 'NV' }
     ];
 
+    function generateUsers(count) {
+      // Keep the existing admin, customer, and manager accounts
+      const coreUsers = [
+        {
+          username: 'admin',
+          email: 'admin@example.com',
+          password: 'Admin123!',
+          firstName: 'Admin',
+          lastName: 'User',
+          role: 'admin'
+        },
+        {
+          username: 'customer',
+          email: 'customer@example.com',
+          password: 'Customer123!',
+          firstName: 'Sample',
+          lastName: 'Customer',
+          role: 'customer'
+        },
+        {
+          username: 'manager',
+          email: 'manager@example.com',
+          password: 'Manager123!',
+          firstName: 'Store',
+          lastName: 'Manager',
+          role: 'manager'
+        }
+      ];
+
+      // Generate additional users to reach the total count
+      const additionalUsersNeeded = count - coreUsers.length;
+      const additionalUsers = [];
+
+      if (additionalUsersNeeded > 0) {
+        const firstNames = ['James', 'John', 'Robert', 'Michael', 'William', 'David', 'Richard', 'Joseph', 'Thomas', 'Charles',
+          'Mary', 'Patricia', 'Jennifer', 'Linda', 'Elizabeth', 'Barbara', 'Susan', 'Jessica', 'Sarah', 'Karen',
+          'Lisa', 'Nancy', 'Betty', 'Sandra', 'Margaret', 'Ashley', 'Kimberly', 'Emily', 'Donna', 'Michelle',
+          'Carol', 'Amanda', 'Melissa', 'Deborah', 'Stephanie', 'Dorothy', 'Rebecca', 'Sharon', 'Laura', 'Cynthia'];
+
+        const lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez',
+          'Hernandez', 'Lopez', 'Gonzalez', 'Wilson', 'Anderson', 'Thomas', 'Taylor', 'Moore', 'Jackson', 'Martin',
+          'Lee', 'Perez', 'Thompson', 'White', 'Harris', 'Sanchez', 'Clark', 'Ramirez', 'Lewis', 'Robinson',
+          'Walker', 'Young', 'Allen', 'King', 'Wright', 'Scott', 'Torres', 'Nguyen', 'Hill', 'Flores'];
+
+        for (let i = 0; i < additionalUsersNeeded; i++) {
+          const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+          const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+          const randomNum = Math.floor(Math.random() * 10000);
+
+          additionalUsers.push({
+            username: `${firstName.toLowerCase()}_${lastName.toLowerCase()}${randomNum}`,
+            email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}${randomNum}@example.com`,
+            password: 'Customer123!',
+            firstName: firstName,
+            lastName: lastName,
+            role: 'customer'
+          });
+        }
+      }
+
+      // Return core users first, then additional users
+      return [...coreUsers, ...additionalUsers];
+    }
+
     // Add random orders for testing (inside the seedDatabase function, after the reviews section)
     const generateRandomOrders = () => {
       const orderStatuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
@@ -811,7 +754,7 @@ const seedDatabase = () => {
       const states = ['NY', 'CA', 'IL', 'TX', 'AZ', 'PA'];
 
       // Generate 50 random orders
-      for (let i = 0; i < 50; i++) {
+      for (let i = 0; i < 500; i++) {
         // Random date within the last 3 years
         const randomDaysAgo = Math.floor(Math.random() * 1095); // 3 years * 365 days
         const randomDate = new Date();
@@ -819,7 +762,10 @@ const seedDatabase = () => {
 
         // Random user ID
         // Random user ID (inside the generateRandomOrders function)
-        const customerUsers = Array.from({ length: 15 }, (_, i) => i + 1); // 15 total users now
+        const customerUsers = [];
+        for (let i = 1; i <= 150; i++) {
+          customerUsers.push(i);
+        }
         const userId = customerUsers[Math.floor(Math.random() * customerUsers.length)];
 
         // Random products and quantities
