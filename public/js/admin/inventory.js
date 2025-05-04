@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Load data
     loadInventory();
+    loadCategories();
     checkLowStock();
 
     // Event listeners
@@ -23,6 +24,40 @@ document.addEventListener('DOMContentLoaded', () => {
     filterSelect.addEventListener('change', filterProducts);
     stockFilter.addEventListener('change', filterProducts);
     applyButton.addEventListener('click', applyBulkUpdates);
+
+    function loadCategories() {
+        fetch('/api/products/categories')
+            .then(response => response.json())
+            .then(categories => {
+                const filterSelect = document.getElementById('filter-select');
+
+                // Keep the default "All Categories" option
+                filterSelect.innerHTML = '<option value="">All Categories</option>';
+
+                // Add main categories
+                categories.forEach(category => {
+                    const mainOption = document.createElement('option');
+                    mainOption.value = category.category_id;
+                    mainOption.textContent = category.name;
+                    filterSelect.appendChild(mainOption);
+
+                    // Add subcategories without special formatting
+                    if (category.subcategories && category.subcategories.length > 0) {
+                        category.subcategories.forEach(subcat => {
+                            const subOption = document.createElement('option');
+                            subOption.value = subcat.category_id;
+                            // No indentation or special formatting
+                            subOption.textContent = subcat.name;
+                            filterSelect.appendChild(subOption);
+                        });
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error loading categories:', error);
+                showNotification('Error loading categories', 'error');
+            });
+    }
 
     function loadInventory() {
         fetch('/api/admin/inventory/products')
@@ -57,11 +92,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         filteredProducts = products.filter(product => {
             const matchesSearch = product.name.toLowerCase().includes(searchTerm) ||
-                                product.category_name?.toLowerCase().includes(searchTerm);
+                product.category_name?.toLowerCase().includes(searchTerm);
             const matchesCategory = !categoryFilter || product.category_id == categoryFilter;
             const matchesStock = stockStatus === 'all' ||
-                               (stockStatus === 'low' && product.stock_quantity <= product.low_stock_threshold) ||
-                               (stockStatus === 'ok' && product.stock_quantity > product.low_stock_threshold);
+                (stockStatus === 'low' && product.stock_quantity <= product.low_stock_threshold) ||
+                (stockStatus === 'ok' && product.stock_quantity > product.low_stock_threshold);
 
             return matchesSearch && matchesCategory && matchesStock;
         });
@@ -84,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function createTableRow(product) {
         const row = document.createElement('tr');
         const stockStatus = product.stock_quantity <= product.low_stock_threshold ? 'low' : 'normal';
-        
+
         row.innerHTML = `
             <td>${product.product_id}</td>
             <td>${product.name}</td>
@@ -158,7 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // First send individual updates
-        Promise.all(updates.map(update => 
+        Promise.all(updates.map(update =>
             fetch(`/api/admin/inventory/products/${update.product_id}`, {
                 method: 'PUT',
                 headers: {
@@ -167,26 +202,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(update)
             })
         ))
-        .then(responses => Promise.all(responses.map(r => r.json())))
-        .then(results => {
-            const failures = results.filter(r => !r.success);
-            if (failures.length > 0) {
-                showNotification(`${failures.length} updates failed`, 'error');
-            } else {
-                showNotification('All updates applied successfully', 'success');
-            }
-            
-            // Clear pending updates
-            pendingUpdates = {};
-            
-            // Reload data
-            loadInventory();
-            checkLowStock();
-        })
-        .catch(error => {
-            console.error('Error applying updates:', error);
-            showNotification('Error applying updates', 'error');
-        });
+            .then(responses => Promise.all(responses.map(r => r.json())))
+            .then(results => {
+                const failures = results.filter(r => !r.success);
+                if (failures.length > 0) {
+                    showNotification(`${failures.length} updates failed`, 'error');
+                } else {
+                    showNotification('All updates applied successfully', 'success');
+                }
+
+                // Clear pending updates
+                pendingUpdates = {};
+
+                // Reload data
+                loadInventory();
+                checkLowStock();
+            })
+            .catch(error => {
+                console.error('Error applying updates:', error);
+                showNotification('Error applying updates', 'error');
+            });
     }
 
     function showNotification(message, type = 'info') {

@@ -52,7 +52,8 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(response => response.json())
             .then(data => {
                 createTopProductsChart(data);
-                displayTopProductsTable(data);
+                // Remove this line since we're removing the table:
+                // displayTopProductsTable(data);
             })
             .catch(error => {
                 console.error('Error loading top products:', error);
@@ -143,6 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     legend: {
                         display: false
@@ -160,6 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
 
     // Create customer insights charts
     function createCustomerInsightsChart(data) {

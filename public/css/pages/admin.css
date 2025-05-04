@@ -373,12 +373,21 @@
     border-radius: var(--border-radius);
     padding: 1.5rem;
     box-shadow: var(--shadow-sm);
+    min-height: 400px;
+    /* Ensures charts have enough vertical space */
+    position: relative;
 }
 
 .charts-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 2rem;
+}
+
+
+.charts-row .chart-card {
+    width: 100%;
+    /* Ensures the chart takes full width of its container */
 }
 
 .admin-table-container {
