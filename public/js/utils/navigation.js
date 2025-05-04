@@ -37,7 +37,6 @@ function getAdminNavigation(user) {
         <li><a href="/admin/inventory">Inventory</a></li>
         <li><a href="/admin/orders">Orders</a></li>
         <li><a href="/admin/analytics">Analytics</a></li>
-        <li><a href="/admin/discounts">Discounts</a></li>
         <li class="nav-dropdown">
             <a href="#" class="dropdown-trigger">Hi, ${user.first_name || user.username} ▼</a>
             <ul class="dropdown-menu">

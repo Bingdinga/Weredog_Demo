@@ -69,12 +69,12 @@ const adminInventoryRoutes = require('./api/admin/inventory');
 const adminAnalyticsRoutes = require('./api/admin/analytics');
 const adminUsersRoutes = require('./api/admin/users');
 const adminOrdersRoutes = require('./api/admin/orders');
-const adminDiscountsRoutes = require('./api/admin/discounts');
+// const adminDiscountsRoutes = require('./api/admin/discounts');
 app.use('/api/admin/inventory', authMiddleware, adminMiddleware, adminInventoryRoutes);
 app.use('/api/admin/analytics', authMiddleware, adminMiddleware, adminAnalyticsRoutes);
 app.use('/api/admin/users', authMiddleware, adminMiddleware, adminUsersRoutes);
 app.use('/api/admin/orders', authMiddleware, adminMiddleware, adminOrdersRoutes);
-app.use('/api/admin/discounts', authMiddleware, adminMiddleware, adminDiscountsRoutes);
+// app.use('/api/admin/discounts', authMiddleware, adminMiddleware, adminDiscountsRoutes);
 
 // Serve HTML views
 app.get('/', (req, res) => {
@@ -140,9 +140,9 @@ app.get('/admin/analytics', authMiddleware, adminMiddleware, (req, res) => {
   res.sendFile(path.join(__dirname, 'views/admin/analytics.html'));
 });
 
-app.get('/admin/discounts', authMiddleware, adminMiddleware, (req, res) => {
-  res.sendFile(path.join(__dirname, 'views/admin/discounts.html'));
-});
+// app.get('/admin/discounts', authMiddleware, adminMiddleware, (req, res) => {
+//   res.sendFile(path.join(__dirname, 'views/admin/discounts.html'));
+// });
 
 // Error handling middleware
 app.use((err, req, res, next) => {
