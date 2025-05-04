@@ -66,6 +66,7 @@
                         headers: {
                             'Content-Type': 'application/json'
                         },
+                        credentials: 'include', // Important for cookies/sessions
                         body: JSON.stringify({ username, password })
                     });
 

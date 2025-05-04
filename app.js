@@ -5,6 +5,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
+const SQLiteStore = require('connect-sqlite3')(session);
 
 // Load environment variables
 dotenv.config();
@@ -21,17 +22,30 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(cors({
+  origin: true, // Allow the request origin (or specify domains)
+  credentials: true // Allow cookies to be sent with requests
+}));
 app.use(helmet({ contentSecurityPolicy: false })); // Disable CSP for Three.js to work
 app.use(morgan('dev'));
 app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
 
 // Session configuration
 app.use(session({
+  store: new SQLiteStore({
+    db: 'sessions.db',
+    dir: __dirname, // or specify another directory
+    table: 'sessions'
+  }),
   secret: process.env.SESSION_SECRET || 'your-secret-key',
   resave: false,
-  saveUninitialized: true,
-  cookie: { secure: process.env.NODE_ENV === 'production' }
+  saveUninitialized: false, // Changed to false to comply with GDPR
+  cookie: {
+    secure: process.env.NODE_ENV === 'production' && process.env.INSECURE_COOKIES !== 'true',
+    httpOnly: true,
+    sameSite: 'lax',
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
 }));
 
 // Serve static files
