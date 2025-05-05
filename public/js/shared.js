@@ -15,6 +15,7 @@ function updateCartCount() {
                     cartCount.classList.remove('has-items');
                 }
             }
+            // No warning/console log if element doesn't exist
         })
         .catch(error => {
             console.error('Error updating cart count:', error);
@@ -136,7 +137,6 @@ window.updateNavigation = updateNavigation;
 
 // Call functions when the page loads
 document.addEventListener('DOMContentLoaded', () => {
-    updateCartCount();
     updateNavigation();
 });
 

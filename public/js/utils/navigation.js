@@ -14,10 +14,20 @@ function loadNavigation() {
             } else {
                 navLinks.innerHTML = getCustomerNavigation(data.authenticated);
             }
+
+            // Now that navigation is fully loaded, update the cart count
+            if (typeof window.updateCartCount === 'function') {
+                window.updateCartCount();
+            }
         })
         .catch(error => {
             console.error('Error loading navigation:', error);
             document.getElementById('nav-links').innerHTML = getCustomerNavigation(false);
+
+            // Still try to update cart count
+            if (typeof window.updateCartCount === 'function') {
+                window.updateCartCount();
+            }
         });
 }
 
