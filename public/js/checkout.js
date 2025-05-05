@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.location.href = '/login?redirect=/checkout';
                 return;
             }
-            
+
             // Load cart data
             loadCart();
         })
@@ -52,11 +52,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         checkoutItems.innerHTML = '';
-        
+
         cart.items.forEach(item => {
             const itemElement = document.createElement('div');
             itemElement.className = 'checkout-item';
-            
+
             itemElement.innerHTML = `
                 <div class="checkout-item-image">
                     <img src="${item.image_path || '/img/placeholder.svg'}" alt="${item.name}">
@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 <div class="checkout-item-price">$${item.subtotal.toFixed(2)}</div>
             `;
-            
+
             checkoutItems.appendChild(itemElement);
         });
     }
@@ -88,33 +88,56 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Simulate order completion
     simulateOrderBtn.addEventListener('click', () => {
-        // Generate a fake order reference number
-        const orderNumber = 'WD-' + Date.now().toString().slice(-8);
-        orderReference.textContent = orderNumber;
-        
-        // Show confirmation modal
-        orderConfirmation.style.display = 'block';
-        
-        // Clear cart in the background
-        fetch('/api/cart/clear', {
-            method: 'DELETE'
+        // Show a loading state
+        simulateOrderBtn.disabled = true;
+        simulateOrderBtn.textContent = 'Processing...';
+
+        // Get shipping and payment info (in a real app, you'd collect this from forms)
+        const demoOrder = {
+            shippingAddress: '123 Demo Street, Demo City, ABC 12345',
+            billingAddress: '123 Demo Street, Demo City, ABC 12345',
+            paymentMethod: 'Demo Card',
+            discountCode: ''
+        };
+
+        // Process payment (this will create the order in the database)
+        fetch('/api/payment/process', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(demoOrder)
         })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
+                    // Generate a reference number from the real order ID
+                    const orderNumber = 'WD-' + data.orderId.toString().padStart(8, '0');
+                    orderReference.textContent = orderNumber;
+
+                    // Show confirmation modal
+                    orderConfirmation.style.display = 'block';
+
                     // Update cart count in navigation
                     if (typeof window.updateCartCount === 'function') {
                         window.updateCartCount();
                     }
-                    
+
                     // Dispatch cart event if available
                     if (typeof window.dispatchCartEvent === 'function' && typeof window.CartEvents === 'object') {
                         window.dispatchCartEvent(window.CartEvents.UPDATED);
                     }
+                } else {
+                    alert(data.error || 'Failed to process order. Please try again.');
+                    simulateOrderBtn.disabled = false;
+                    simulateOrderBtn.textContent = 'Simulate Order Completion';
                 }
             })
             .catch(error => {
-                console.error('Error clearing cart:', error);
+                console.error('Error processing order:', error);
+                alert('Error processing order. Please try again.');
+                simulateOrderBtn.disabled = false;
+                simulateOrderBtn.textContent = 'Simulate Order Completion';
             });
     });
 
