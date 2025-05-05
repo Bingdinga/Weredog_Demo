@@ -6,57 +6,89 @@ const logger = require('../../utils/logger');
 // Get all orders with user and product details
 router.get('/', (req, res) => {
   try {
-    const { status, startDate, endDate, page = 1, limit = 20 } = req.query;
+    const { status, startDate, endDate, page = 1, limit = 20, sort = 'created_at', direction = 'desc', search = '' } = req.query;
 
-    let query = `
-      SELECT o.*, u.username, u.email,
-             (SELECT COUNT(*) FROM order_items WHERE order_id = o.order_id) as item_count
-      FROM orders o
-      JOIN users u ON o.user_id = u.user_id
-      WHERE 1=1
-    `;
+    // Parse page and limit as integers
+    const pageNum = parseInt(page) || 1;
+    const limitNum = parseInt(limit) || 20;
 
+    // Build WHERE clause for both count and main queries
+    let whereClause = '1=1';
     const params = [];
 
     if (status) {
-      query += ' AND o.status = ?';
+      whereClause += ' AND o.status = ?';
       params.push(status);
     }
 
     if (startDate) {
-      query += ' AND DATE(o.created_at) >= ?';
+      whereClause += ' AND DATE(o.created_at) >= ?';
       params.push(startDate);
     }
 
     if (endDate) {
-      query += ' AND DATE(o.created_at) <= ?';
+      whereClause += ' AND DATE(o.created_at) <= ?';
       params.push(endDate);
     }
 
-    // Clone the query for counting before adding ORDER BY and LIMIT
-    let countQuery = query;
+    // Add username search condition if provided
+    if (search) {
+      whereClause += ' AND u.username LIKE ?';
+      params.push(`%${search}%`); // Add wildcards for partial matching
+    }
 
-    query += ' ORDER BY o.created_at DESC LIMIT ? OFFSET ?';
-    params.push(parseInt(limit), (parseInt(page) - 1) * parseInt(limit));
-
-    // Execute main query
-    const orders = db.prepare(query).all(...params);
+    // Count query - completely separate from main query
+    const countQuery = `
+      SELECT COUNT(*) as total
+      FROM orders o
+      JOIN users u ON o.user_id = u.user_id
+      WHERE ${whereClause}
+    `;
 
     // Get total count
-    countQuery = countQuery.replace(
-      'SELECT o.*, u.username, u.email, (SELECT COUNT(*) FROM order_items WHERE order_id = o.order_id) as item_count',
-      'SELECT COUNT(*) as total'
-    );
-    const countParams = params.slice(0, -2); // Remove LIMIT and OFFSET
-    const total = db.prepare(countQuery).get(...countParams).total;
+    const countResult = db.prepare(countQuery).get(...params);
+    const total = countResult ? countResult.total : 0;
+
+    // Validate and sanitize the sort field to prevent SQL injection
+    const validSortFields = ['order_id', 'username', 'created_at', 'total_amount'];
+    const sanitizedSortField = validSortFields.includes(sort) ? sort : 'created_at';
+
+    // Determine table prefix for the sort field
+    const tablePrefix = sanitizedSortField === 'username' ? 'u' : 'o';
+
+    // Validate sort direction
+    const sanitizedDirection = direction.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+
+    // Main query for fetching data with ORDER BY clause
+    const mainQuery = `
+      SELECT o.*, u.username, u.email,
+             (SELECT COUNT(*) FROM order_items WHERE order_id = o.order_id) as item_count
+      FROM orders o
+      JOIN users u ON o.user_id = u.user_id
+      WHERE ${whereClause}
+      ORDER BY ${tablePrefix}.${sanitizedSortField} ${sanitizedDirection}
+      LIMIT ? OFFSET ?
+    `;
+
+    // Add limit and offset params for the main query
+    const mainParams = [...params, limitNum, (pageNum - 1) * limitNum];
+
+    // Execute main query
+    const orders = db.prepare(mainQuery).all(...mainParams);
+
+    // Calculate total pages
+    const totalPages = Math.max(1, Math.ceil(total / limitNum));
+
+    // Log for debugging
+    console.log(`API Request: search="${search}", sort=${sanitizedSortField}, direction=${sanitizedDirection}, page=${pageNum}`);
 
     res.json({
       orders,
       pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
+        page: pageNum,
+        limit: limitNum,
         total,
-        totalPages: Math.ceil(total / limit)
+        totalPages
       }
     });
   } catch (error) {
