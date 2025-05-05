@@ -3,6 +3,8 @@ let useExistingTexture = false;
 
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Setup tab functionality
+    setupTabsNavigation();
     // Get product ID from URL
     const productId = window.location.pathname.split('/').pop();
 
@@ -14,15 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const productStock = document.getElementById('product-stock');
     const modelLoadingOverlay = document.getElementById('model-loading-overlay');
     const productViewer = document.getElementById('product-viewer');
-    const cycleResolutionBtn = document.getElementById('cycle-resolution');
-
-
-    if (cycleResolutionBtn) {
-        cycleResolutionBtn.addEventListener('click', cycleResolution);
-        console.log('Added click listener to cycle resolution button');
-    } else {
-        console.error('Cycle resolution button not found');
-    }
 
     // Load product data
     loadProductData();
@@ -79,9 +72,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     currentModelResolution = 'high' in productModels ? 'high' :
                         ('medium' in productModels ? 'medium' :
                             ('low' in productModels ? 'low' : null));
-
-                    // Update resolution button text
-                    updateResolutionButton();
 
                     // If we have a valid resolution, load the model
                     if (currentModelResolution) {
@@ -355,149 +345,6 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Resized to:', width, height);
     }
 
-    function updateResolutionButton() {
-        if (cycleResolutionBtn) {
-            switch (currentModelResolution) {
-                case 'high':
-                    cycleResolutionBtn.textContent = 'HD';
-                    break;
-                case 'medium':
-                    cycleResolutionBtn.textContent = 'MD';
-                    break;
-                case 'low':
-                    cycleResolutionBtn.textContent = 'LO';
-                    break;
-                default:
-                    cycleResolutionBtn.textContent = '??';
-            }
-        }
-    }
-
-    function cycleResolution() {
-        console.log('Cycle resolution clicked, current resolution:', currentModelResolution);
-        console.log('Available models from API:', productModels);
-
-        if (modelLoadAttemptInProgress) {
-            console.log('Model load attempt already in progress, ignoring click');
-            return;
-        }
-        const resolutions = ['high', 'medium', 'low'];
-        // const availableResolutions = resolutions.filter(res => res in productModels);
-
-        // if (availableResolutions.length <= 1) {
-        //     console.log('Only one resolution available, nothing to cycle');
-        //     return; // No other resolutions to cycle through
-        // }
-
-        // Find current index
-        const currentIndex = resolutions.indexOf(currentModelResolution);
-
-        // Get next resolution (cycle back to beginning if at the end)
-        const nextIndex = (currentIndex + 1) % resolutions.length;
-        const nextResolution = resolutions[nextIndex];
-
-
-        console.log('Attempting to switch to resolution:', nextResolution);
-
-        // Update button right away to provide feedback
-        const cycleResolutionBtn = document.getElementById('cycle-resolution');
-        if (cycleResolutionBtn) {
-            cycleResolutionBtn.textContent = nextResolution === 'high' ? 'HD' :
-                nextResolution === 'medium' ? 'MD' : 'LO';
-        }
-
-        // Show loading overlay again
-        const modelLoadingOverlay = document.getElementById('model-loading-overlay');
-        if (modelLoadingOverlay) {
-            modelLoadingOverlay.classList.remove('hide');
-        }
-
-        // Load the new model
-        const modelPath = productModels[nextResolution] ||
-            `/models/${nextResolution}/default_placeholder.glb`;
-
-        console.log(`Attempting to load ${nextResolution} resolution from:`, modelPath);
-
-        // Set the flag to prevent multiple simultaneous load attempts
-        modelLoadAttemptInProgress = true;
-
-        // Clear the current scene
-        if (model && scene) {
-            scene.remove(model);
-            model = null;
-        }
-
-        // Load the new model
-        tryLoadModel(modelPath, nextResolution);
-    }
-
-    function tryLoadModel(modelPath, resolution) {
-        // Create a new loader
-        const loader = new THREE.GLTFLoader();
-
-        loader.load(
-            modelPath,
-            (gltf) => {
-                // Model loaded successfully
-                console.log(`${resolution} resolution model loaded successfully`);
-
-                model = gltf.scene;
-
-                // Apply random material to all meshes
-                applyRandomMatteMaterial(model);
-
-                // Update current resolution
-                currentModelResolution = resolution;
-
-                // Store this path in productModels for future reference
-                productModels[resolution] = modelPath;
-
-                // Update the scene with the new model
-                scene.add(model);
-
-                // Center and scale the model
-                const box = new THREE.Box3().setFromObject(model);
-                const center = box.getCenter(new THREE.Vector3());
-                const size = box.getSize(new THREE.Vector3());
-
-                // Get the maximum dimension
-                const maxDim = Math.max(size.x, size.y, size.z);
-                const scaleFactor = 5 / maxDim;
-
-                model.scale.set(scaleFactor, scaleFactor, scaleFactor);
-                model.position.sub(center.multiplyScalar(scaleFactor));
-
-                // Hide loading overlay
-                const modelLoadingOverlay = document.getElementById('model-loading-overlay');
-                if (modelLoadingOverlay) {
-                    modelLoadingOverlay.classList.add('hide');
-                }
-
-                // Reset the flag
-                modelLoadAttemptInProgress = false;
-            },
-            (progress) => {
-                // Loading progress - could add a progress indicator here
-            },
-            (error) => {
-                // Error handling - try next resolution if this one failed
-                console.error(`Error loading ${resolution} resolution model:`, error);
-
-                // Reset the flag
-                modelLoadAttemptInProgress = false;
-
-                // Hide loading overlay
-                const modelLoadingOverlay = document.getElementById('model-loading-overlay');
-                if (modelLoadingOverlay) {
-                    modelLoadingOverlay.classList.add('hide');
-                }
-
-                // Log available resolutions
-                console.log('Currently available models:', Object.keys(productModels));
-            }
-        );
-    }
-
     // Quantity controls
     const decreaseBtn = document.getElementById('decrease-quantity');
     const increaseBtn = document.getElementById('increase-quantity');
@@ -630,5 +477,109 @@ document.addEventListener('DOMContentLoaded', () => {
                     alert('Error updating wishlist');
                 }
             });
+    }
+    
+    // Function to handle tab navigation
+    function setupTabsNavigation() {
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        // Add click event listeners to all tab buttons
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons and contents
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+                
+                // Add active class to the clicked button
+                button.classList.add('active');
+                
+                // Get the tab name from data attribute
+                const tabName = button.getAttribute('data-tab');
+                
+                // Add active class to the corresponding content
+                const activeContent = document.getElementById(`${tabName}-tab`);
+                if (activeContent) {
+                    activeContent.classList.add('active');
+                }
+            });
+        });
+    }
+    
+    // Function to load content for specific tabs
+    function loadTabContent(tabName, productId) {
+        const contentElement = document.getElementById(`${tabName}-tab`);
+        
+        if (!contentElement) return;
+        
+        switch(tabName) {
+            case 'description':
+                // Description is already loaded with the product data
+                // This is now handled in the loadProductData function
+                break;
+                
+            case 'details':
+                // For the details tab, since the API endpoint doesn't exist yet,
+                // just display a placeholder message instead of making the API call
+                if (contentElement.querySelector('#product-details').textContent === 'Loading product details...') {
+                    contentElement.querySelector('#product-details').innerHTML = '<p>No additional details available for this product at this time.</p>';
+                }
+                break;
+                
+            case 'reviews':
+                // Load reviews from API if not already loaded
+                if (contentElement.querySelector('#product-reviews').textContent === 'Loading reviews...') {
+                    // Check if reviews API exists or just show placeholder
+                    contentElement.querySelector('#product-reviews').innerHTML = '<p>No reviews available for this product yet.</p>';
+                    // If you implement the reviews API in the future, you can uncomment the fetch code below
+                    /*
+                    fetch(`/api/products/${productId}/reviews`)
+                        .then(response => {
+                            if (!response.ok) {
+                                contentElement.querySelector('#product-reviews').innerHTML = '<p>No reviews available for this product yet.</p>';
+                                return Promise.reject('Reviews not found');
+                            }
+                            return response.json();
+                        })
+                        .then(reviews => {
+                            if (reviews && reviews.length > 0) {
+                                let reviewsHTML = '';
+                                reviews.forEach(review => {
+                                    // Create star rating
+                                    let stars = '';
+                                    for (let i = 0; i < 5; i++) {
+                                        if (i < review.rating) {
+                                            stars += '★'; // Filled star
+                                        } else {
+                                            stars += '☆'; // Empty star
+                                        }
+                                    }
+                                    
+                                    reviewsHTML += `
+                                        <div class="review-item">
+                                            <div class="review-header">
+                                                <span class="review-author">${review.username}</span>
+                                                <span class="review-rating">${stars}</span>
+                                                <span class="review-date">${new Date(review.created_at).toLocaleDateString()}</span>
+                                            </div>
+                                            <div class="review-content">${review.comment}</div>
+                                        </div>
+                                    `;
+                                });
+                                contentElement.querySelector('#product-reviews').innerHTML = reviewsHTML;
+                            } else {
+                                contentElement.querySelector('#product-reviews').innerHTML = '<p>No reviews available for this product yet.</p>';
+                            }
+                        })
+                        .catch(error => {
+                            if (error !== 'Reviews not found') {
+                                console.error('Error loading product reviews:', error);
+                                contentElement.querySelector('#product-reviews').innerHTML = '<p>Error loading product reviews.</p>';
+                            }
+                        });
+                    */
+                }
+                break;
+        }
     }
 });

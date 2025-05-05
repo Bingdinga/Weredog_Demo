@@ -53,7 +53,6 @@ function getCustomerNavigation(authenticated) {
             <a href="/account" class="dropdown-trigger">Account ▼</a>
             <ul class="dropdown-menu">
                 <li><a href="/account">Account Settings</a></li>
-                <li><a href="/account#orders">Order History</a></li>
                 <li><a href="/wishlist">Wishlist</a></li>
                 <li><a href="#" id="logout-link">Logout</a></li>
             </ul>
