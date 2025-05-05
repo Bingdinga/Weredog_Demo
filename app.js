@@ -68,6 +68,7 @@ const cartRoutes = require('./api/cart');
 const wishlistRoutes = require('./api/wishlist');
 const orderRoutes = require('./api/orders');
 const paymentRoutes = require('./api/payment');
+const shippingAddressRoutes = require('./api/shipping-addresses');
 
 
 // API routes
@@ -77,6 +78,7 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/payment', paymentRoutes);
+app.use('/api/shipping-addresses', shippingAddressRoutes);
 
 // Admin routes
 const adminInventoryRoutes = require('./api/admin/inventory');

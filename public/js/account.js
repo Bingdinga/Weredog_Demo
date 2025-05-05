@@ -213,8 +213,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const addressesContainer = document.getElementById('addresses-container');
 
         fetch('/api/shipping-addresses')
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(addresses => {
+                // Ensure addresses is an array
+                if (!Array.isArray(addresses)) {
+                    console.error('Expected array but got:', addresses);
+                    addresses = [];
+                }
+
                 if (addresses.length === 0) {
                     const emptyTemplate = document.getElementById('empty-addresses-template').content.cloneNode(true);
                     addressesContainer.innerHTML = '';
@@ -263,7 +274,8 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .catch(error => {
                 console.error('Error loading addresses:', error);
-                addressesContainer.innerHTML = '<div class="error-message">Error loading addresses. Please try again.</div>';
+                // Show a user-friendly error message
+                addressesContainer.innerHTML = '<div class="error-message">Error loading addresses. Please try again later.</div>';
             });
     }
 
