@@ -27,6 +27,11 @@ router.get('/sales-overview', (req, res) => {
 router.get('/sales-by-date', (req, res) => {
   try {
     const { start_date, end_date } = req.query;
+    
+    // Default to 1 year ago if no start date is provided
+    const defaultStartDate = new Date();
+    defaultStartDate.setFullYear(defaultStartDate.getFullYear() - 1);
+    const formattedDefaultStart = defaultStartDate.toISOString().split('T')[0];
 
     let query = `
       SELECT DATE(created_at) as date, 
@@ -40,13 +45,17 @@ router.get('/sales-by-date', (req, res) => {
     if (start_date) {
       query += ' AND DATE(created_at) >= ?';
       params.push(start_date);
+    } else {
+      query += ' AND DATE(created_at) >= ?';
+      params.push(formattedDefaultStart);
     }
+    
     if (end_date) {
       query += ' AND DATE(created_at) <= ?';
       params.push(end_date);
     }
 
-    query += ' GROUP BY DATE(created_at) ORDER BY date DESC';
+    query += ' GROUP BY DATE(created_at) ORDER BY date ASC';
 
     const salesData = db.prepare(query).all(...params);
     res.json(salesData);
@@ -84,77 +93,191 @@ router.get('/top-products', (req, res) => {
 // Get customer insights
 router.get('/customer-insights', (req, res) => {
   try {
-    // Simplified query without median calculations
-    const stats = db.prepare(`
-      SELECT 
-        COUNT(DISTINCT u.user_id) as total_customers,
-        (SELECT AVG(cnt)
-         FROM (SELECT COUNT(*) as cnt FROM orders WHERE status != 'cancelled' GROUP BY user_id)) as avg_orders_per_customer,
-        (SELECT AVG(sum_amt)
-         FROM (SELECT SUM(total_amount) as sum_amt FROM orders WHERE status != 'cancelled' GROUP BY user_id)) as avg_customer_value
-      FROM users u
-      WHERE u.role = 'customer'
+    // Get current date for time-based queries
+    const now = new Date();
+    
+    // Calculate date strings for time periods
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1; // JS months are 0-based
+    const currentQuarter = Math.ceil(currentMonth / 3);
+    
+    // Create date strings for SQL queries
+    const yearStart = `${currentYear - 1}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    
+    // Calculate quarter start date
+    const quarterStartMonth = (currentQuarter - 1) * 3 + 1;
+    const quarterStart = `${currentYear}-${String(quarterStartMonth).padStart(2, '0')}-01`;
+    
+    // Month start
+    const monthStart = `${currentYear}-${String(currentMonth).padStart(2, '0')}-01`;
+
+    // All time customer counts
+    const allTimeCustomers = db.prepare(`
+      SELECT COUNT(DISTINCT user_id) as count FROM users WHERE role = 'customer'
     `).get();
 
-    // Simple version of order distribution
-    const orderDistribution = db.prepare(`
-      SELECT 
-        CASE 
-          WHEN cnt = 0 THEN '0 orders'
-          WHEN cnt = 1 THEN '1 order'
-          WHEN cnt BETWEEN 2 AND 5 THEN '2-5 orders' 
-          WHEN cnt BETWEEN 6 AND 10 THEN '6-10 orders'
-          ELSE '10+ orders'
-        END as order_range,
-        COUNT(*) as customer_count
-      FROM (
-        SELECT 
-          u.user_id,
-          COUNT(o.order_id) as cnt
-        FROM users u
-        LEFT JOIN orders o ON u.user_id = o.user_id AND o.status != 'cancelled'
-        WHERE u.role = 'customer'
-        GROUP BY u.user_id
+    // Active customers by period
+    const yearCustomers = db.prepare(`
+      SELECT COUNT(DISTINCT user_id) as count 
+      FROM orders 
+      WHERE status != 'cancelled' 
+      AND created_at >= ?
+    `).get(yearStart);
+
+    const quarterCustomers = db.prepare(`
+      SELECT COUNT(DISTINCT user_id) as count 
+      FROM orders 
+      WHERE status != 'cancelled' 
+      AND created_at >= ?
+    `).get(quarterStart);
+
+    const monthCustomers = db.prepare(`
+      SELECT COUNT(DISTINCT user_id) as count 
+      FROM orders 
+      WHERE status != 'cancelled' 
+      AND created_at >= ?
+    `).get(monthStart);
+
+    // Average orders per customer
+    const avgOrdersAllTime = db.prepare(`
+      WITH customer_order_counts AS (
+        SELECT user_id, COUNT(order_id) as order_count
+        FROM orders
+        WHERE status != 'cancelled'
+        GROUP BY user_id
       )
-      GROUP BY order_range
+      SELECT AVG(order_count) as avg_orders
+      FROM customer_order_counts
+    `).get();
+
+    const avgOrdersYear = db.prepare(`
+      WITH customer_order_counts AS (
+        SELECT user_id, COUNT(order_id) as order_count
+        FROM orders
+        WHERE status != 'cancelled' AND created_at >= ?
+        GROUP BY user_id
+      )
+      SELECT AVG(order_count) as avg_orders
+      FROM customer_order_counts
+    `).get(yearStart);
+
+    const avgOrdersQuarter = db.prepare(`
+      WITH customer_order_counts AS (
+        SELECT user_id, COUNT(order_id) as order_count
+        FROM orders
+        WHERE status != 'cancelled' AND created_at >= ?
+        GROUP BY user_id
+      )
+      SELECT AVG(order_count) as avg_orders
+      FROM customer_order_counts
+    `).get(quarterStart);
+
+    const avgOrdersMonth = db.prepare(`
+      WITH customer_order_counts AS (
+        SELECT user_id, COUNT(order_id) as order_count
+        FROM orders
+        WHERE status != 'cancelled' AND created_at >= ?
+        GROUP BY user_id
+      )
+      SELECT AVG(order_count) as avg_orders
+      FROM customer_order_counts
+    `).get(monthStart);
+
+    // Average order values by period
+    const avgOrderValueAllTime = db.prepare(`
+      SELECT AVG(total_amount) as avg_value
+      FROM orders
+      WHERE status != 'cancelled'
+    `).get();
+
+    const avgOrderValueYear = db.prepare(`
+      SELECT AVG(total_amount) as avg_value
+      FROM orders
+      WHERE status != 'cancelled' AND created_at >= ?
+    `).get(yearStart);
+
+    const avgOrderValueQuarter = db.prepare(`
+      SELECT AVG(total_amount) as avg_value
+      FROM orders
+      WHERE status != 'cancelled' AND created_at >= ?
+    `).get(quarterStart);
+
+    const avgOrderValueMonth = db.prepare(`
+      SELECT AVG(total_amount) as avg_value
+      FROM orders
+      WHERE status != 'cancelled' AND created_at >= ?
+    `).get(monthStart);
+
+    // Order distribution - one bar per number of orders
+    const orderDistribution = db.prepare(`
+      WITH customer_orders AS (
+        SELECT user_id, COUNT(order_id) as order_count
+        FROM orders
+        WHERE status != 'cancelled'
+        GROUP BY user_id
+      )
+      SELECT order_count, COUNT(user_id) as customer_count
+      FROM customer_orders
+      GROUP BY order_count
+      ORDER BY order_count ASC
     `).all();
 
-    // Simple version of spending distribution
-    const spendingDistribution = db.prepare(`
-      SELECT 
-        CASE 
-          WHEN total_spent IS NULL THEN '$0'
-          WHEN total_spent = 0 THEN '$0'
-          WHEN total_spent BETWEEN 0.01 AND 100 THEN '$1-100'
-          WHEN total_spent BETWEEN 101 AND 500 THEN '$101-500'
-          WHEN total_spent BETWEEN 501 AND 1000 THEN '$501-1,000'
-          ELSE '$1,000+'
-        END as spending_range,
-        COUNT(*) as customer_count
-      FROM (
+    // Average order value distribution with $50 bins
+    const avgOrderValueDistribution = db.prepare(`
+      WITH bins AS (
         SELECT 
-          u.user_id,
-          SUM(o.total_amount) as total_spent
-        FROM users u
-        LEFT JOIN orders o ON u.user_id = o.user_id AND o.status != 'cancelled'
-        WHERE u.role = 'customer'
-        GROUP BY u.user_id
+          (CAST((total_amount / 50) AS INTEGER) * 50) as bin_floor,
+          COUNT(*) as order_count
+        FROM orders
+        WHERE status != 'cancelled'
+        GROUP BY bin_floor
       )
-      GROUP BY spending_range
+      SELECT 
+        bin_floor, 
+        bin_floor + 50 as bin_ceiling,
+        order_count
+      FROM bins
+      ORDER BY bin_floor ASC
     `).all();
+
+    // Format the time periods for display
+    const timePeriods = {
+      year: `${yearStart} to Present`,
+      quarter: `${quarterStart} to Present (Q${currentQuarter})`,
+      month: `${monthStart} to Present`
+    };
 
     res.json({
-      stats,
-      orderDistribution,
-      spendingDistribution
+      customers: {
+        allTime: allTimeCustomers.count || 0,
+        year: yearCustomers.count || 0,
+        quarter: quarterCustomers.count || 0,
+        month: monthCustomers.count || 0
+      },
+      avgOrdersPerCustomer: {
+        allTime: avgOrdersAllTime.avg_orders || 0,
+        year: avgOrdersYear.avg_orders || 0,
+        quarter: avgOrdersQuarter.avg_orders || 0,
+        month: avgOrdersMonth.avg_orders || 0
+      },
+      avgOrderValue: {
+        allTime: avgOrderValueAllTime.avg_value || 0,
+        year: avgOrderValueYear.avg_value || 0,
+        quarter: avgOrderValueQuarter.avg_value || 0,
+        month: avgOrderValueMonth.avg_value || 0
+      },
+      orderDistribution: orderDistribution,
+      avgOrderValueDistribution: avgOrderValueDistribution,
+      timePeriods: timePeriods
     });
   } catch (error) {
     logger.error('Error fetching customer insights', error);
-    console.error('Detailed error:', error); // Add more detailed logging
+    console.error('Detailed error:', error);
     res.status(500).json({ error: 'Failed to fetch customer insights' });
   }
 });
 
+// Other existing routes...
 router.get('/revenue-breakdown', (req, res) => {
   try {
     const currentDate = new Date(2025, 4, 4); // May 4, 2025 (using your system date)
@@ -210,7 +333,6 @@ router.get('/revenue-breakdown', (req, res) => {
   }
 });
 
-// Get customer breakdown by year, quarter, and month
 router.get('/customer-breakdown', (req, res) => {
   try {
     const currentDate = new Date(2025, 4, 4); // May 4, 2025 (using your system date)

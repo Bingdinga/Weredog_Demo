@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Chart context
-    let salesChart, topProductsChart, customerInsightsChart;
+    let salesChart, topProductsChart, orderFrequencyChart, orderValueChart;
 
     // Load initial data
     loadSalesOverview();
@@ -26,9 +26,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Function to load sales trend data
     function loadSalesByDate() {
+        // Default to last year if no dates are specified
         const endDate = new Date();
         const startDate = new Date();
-        startDate.setMonth(startDate.getMonth() - 3); // Last 3 months
+        startDate.setFullYear(startDate.getFullYear() - 1); // Last year
 
         const params = new URLSearchParams({
             start_date: startDate.toISOString().split('T')[0],
@@ -52,8 +53,6 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(response => response.json())
             .then(data => {
                 createTopProductsChart(data);
-                // Remove this line since we're removing the table:
-                // displayTopProductsTable(data);
             })
             .catch(error => {
                 console.error('Error loading top products:', error);
@@ -63,17 +62,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Function to load customer insights
     function loadCustomerInsights() {
-        // Add a small delay to ensure DOM is fully loaded
-        setTimeout(() => {
-            fetch('/api/admin/analytics/customer-insights')
-                .then(response => response.json())
-                .then(data => {
-                    createCustomerInsightsChart(data);
-                })
-                .catch(error => {
-                    console.error('Error loading customer insights:', error);
-                });
-        }, 500); // 500ms delay
+        fetch('/api/admin/analytics/customer-insights')
+            .then(response => response.json())
+            .then(data => {
+                displayCustomerMetrics(data);
+                createCustomerInsightsCharts(data);
+            })
+            .catch(error => {
+                console.error('Error loading customer insights:', error);
+                showNotification('Error loading customer insights', 'error');
+            });
+    }
+
+    // Display customer metrics
+    function displayCustomerMetrics(data) {
+        // Customer counts
+        document.getElementById('customers-all-time').textContent = data.customers.allTime;
+        document.getElementById('customers-year').textContent = data.customers.year;
+        document.getElementById('customers-quarter').textContent = data.customers.quarter;
+        document.getElementById('customers-month').textContent = data.customers.month;
+
+        // Average orders per customer
+        document.getElementById('avg-orders-all-time').textContent = data.avgOrdersPerCustomer.allTime.toFixed(1);
+        document.getElementById('avg-orders-year').textContent = data.avgOrdersPerCustomer.year.toFixed(1);
+        document.getElementById('avg-orders-quarter').textContent = data.avgOrdersPerCustomer.quarter.toFixed(1);
+        document.getElementById('avg-orders-month').textContent = data.avgOrdersPerCustomer.month.toFixed(1);
+
+        // Average order value
+        document.getElementById('avg-value-all-time').textContent = `$${data.avgOrderValue.allTime.toFixed(2)}`;
+        document.getElementById('avg-value-year').textContent = `$${data.avgOrderValue.year.toFixed(2)}`;
+        document.getElementById('avg-value-quarter').textContent = `$${data.avgOrderValue.quarter.toFixed(2)}`;
+        document.getElementById('avg-value-month').textContent = `$${data.avgOrderValue.month.toFixed(2)}`;
     }
 
     // Create sales trend chart
@@ -109,6 +128,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 },
                 scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    },
                     y: {
                         beginAtZero: true,
                         ticks: {
@@ -163,138 +188,127 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-
     // Create customer insights charts
-    function createCustomerInsightsChart(data) {
-        console.log("Creating customer insights charts...");
-        // console.log("Looking for canvas elements:",
-        //     document.getElementById('customer-orders-chart'),
-        //     document.getElementById('customer-spending-chart'));
+    function createCustomerInsightsCharts(data) {
+        createOrderFrequencyChart(data.orderDistribution);
+        createOrderValueChart(data.avgOrderValueDistribution);
+    }
 
-        // Check if customer-orders-chart exists
-        const ordersCanvas = document.getElementById('customer-orders-chart');
-        if (!ordersCanvas) {
+    function createOrderFrequencyChart(orderDistribution) {
+        const canvas = document.getElementById('customer-orders-chart');
+        if (!canvas) {
             console.error("customer-orders-chart element not found in the DOM");
             return;
         }
 
-        // Check if customer-spending-chart exists
-        const spendingCanvas = document.getElementById('customer-spending-chart');
-        if (!spendingCanvas) {
-            console.error("customer-spending-chart element not found in the DOM");
-            return;
+        const ctx = canvas.getContext('2d');
+
+        if (orderFrequencyChart) {
+            orderFrequencyChart.destroy();
         }
 
-        try {
-            // Get canvas contexts
-            const ordersCtx = ordersCanvas.getContext('2d');
-            const spendingCtx = spendingCanvas.getContext('2d');
-
-            // Create order distribution chart
-            new Chart(ordersCtx, {
-                type: 'bar',
-                data: {
-                    labels: data.orderDistribution.map(d => d.order_range),
-                    datasets: [{
-                        label: 'Number of Customers',
-                        data: data.orderDistribution.map(d => d.customer_count),
-                        backgroundColor: 'rgba(142, 45, 226, 0.7)',
-                        borderColor: 'rgba(142, 45, 226, 1)',
-                        borderWidth: 1
-                    }]
+        orderFrequencyChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: orderDistribution.map(d => d.order_count.toString()),
+                datasets: [{
+                    label: 'Number of Customers',
+                    data: orderDistribution.map(d => d.customer_count),
+                    backgroundColor: 'rgba(142, 45, 226, 0.7)',
+                    borderColor: 'rgba(142, 45, 226, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                aspectRatio: 2,  // Add this line to control aspect ratio
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Customer Order Frequency'
+                    }
                 },
-                options: {
-                    responsive: true,
-                    plugins: {
+                scales: {
+                    x: {
                         title: {
                             display: true,
-                            text: 'Customer Order Frequency Distribution'
+                            text: 'Number of Orders'
                         }
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                stepSize: 1
-                            }
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Customers'
+                        },
+                        ticks: {
+                            stepSize: 1
                         }
                     }
                 }
-            });
-
-            // Create spending distribution chart
-            new Chart(spendingCtx, {
-                type: 'bar',
-                data: {
-                    labels: data.spendingDistribution.map(d => d.spending_range),
-                    datasets: [{
-                        label: 'Number of Customers',
-                        data: data.spendingDistribution.map(d => d.customer_count),
-                        backgroundColor: 'rgba(255, 45, 85, 0.7)',
-                        borderColor: 'rgba(255, 45, 85, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Customer Spending Distribution'
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                stepSize: 1
-                            }
-                        }
-                    }
-                }
-            });
-
-            // Update the stats display
-            document.getElementById('total-customers-insight').textContent = data.stats.total_customers || '0';
-            document.getElementById('avg-orders-per-customer').textContent = (data.stats.avg_orders_per_customer || 0).toFixed(1);
-            document.getElementById('avg-customer-value').textContent = `$${(data.stats.avg_customer_value || 0).toFixed(2)}`;
-
-            console.log("Customer insights charts created successfully");
-        } catch (error) {
-            console.error("Error creating customer insights charts:", error);
-        }
-    }
-
-    // Display top products table
-    function displayTopProductsTable(data) {
-        const tableBody = document.getElementById('top-products-table-body');
-        tableBody.innerHTML = '';
-
-        data.forEach((product, index) => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${index + 1}</td>
-                <td>${product.name}</td>
-                <td>${product.units_sold}</td>
-                <td>$${product.revenue.toFixed(2)}</td>
-            `;
-            tableBody.appendChild(row);
+            }
         });
     }
 
-    // Notification function
-    function showNotification(message, type = 'info') {
-        const notification = document.createElement('div');
-        notification.className = `notification notification-${type}`;
-        notification.textContent = message;
-        document.body.appendChild(notification);
+    // Update the createOrderValueChart function
+    function createOrderValueChart(orderValueDistribution) {
+        const canvas = document.getElementById('order-value-chart');
+        if (!canvas) {
+            console.error("order-value-chart element not found in the DOM");
+            return;
+        }
 
-        setTimeout(() => notification.classList.add('show'), 10);
-        setTimeout(() => {
-            notification.classList.remove('show');
-            setTimeout(() => notification.remove(), 300);
-        }, 3000);
+        const ctx = canvas.getContext('2d');
+
+        if (orderValueChart) {
+            orderValueChart.destroy();
+        }
+
+        orderValueChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: orderValueDistribution.map(d => `$${d.bin_floor}-$${d.bin_ceiling}`),
+                datasets: [{
+                    label: 'Number of Orders',
+                    data: orderValueDistribution.map(d => d.order_count),
+                    backgroundColor: 'rgba(255, 45, 85, 0.7)',
+                    borderColor: 'rgba(255, 45, 85, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                aspectRatio: 2,  // Add this line to control aspect ratio
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Order Value Distribution'
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Order Value Range'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Orders'
+                        },
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
     }
+
 
     // Date range picker for custom reports
     const startDatePicker = document.getElementById('start-date');
@@ -321,4 +335,18 @@ document.addEventListener('DOMContentLoaded', () => {
             loadSalesByDate();
         }
     });
+
+    // Notification function
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        setTimeout(() => notification.classList.add('show'), 10);
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
 });

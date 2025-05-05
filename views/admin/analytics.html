@@ -23,19 +23,17 @@
 
     <div class="admin-dashboard">
         <aside class="admin-sidebar">
-            <!-- <h2>Admin Panel</h2> -->
             <nav class="admin-sidebar-nav">
                 <a href="/admin">Dashboard</a>
                 <a href="/admin/inventory">Inventory</a>
                 <a href="/admin/orders">Orders</a>
                 <a href="/admin/analytics" class="active">Analytics</a>
-                <!-- <a href="/admin/discounts">Discounts</a> -->
             </nav>
         </aside>
 
         <main class="admin-content">
             <div class="admin-content-header">
-                <h1>Analytics Dashboard</h1>
+                <h1>Analytics</h1>
             </div>
 
             <!-- Sales Overview Cards -->
@@ -66,44 +64,98 @@
                 <button id="refresh-data" class="btn">Apply Filter</button>
             </div>
 
-
             <!-- Charts Section -->
             <div class="charts-container">
                 <div class="chart-card">
                     <canvas id="sales-chart"></canvas>
                 </div>
 
-
                 <div class="chart-card" style="width: 100%;">
                     <canvas id="top-products-chart"></canvas>
                 </div>
-
             </div>
 
             <div class="dashboard-section">
                 <h2>Customer Insights</h2>
-                <div class="insights-grid">
-                    <div class="insight-card">
-                        <h4>Total Customers</h4>
-                        <p id="total-customers-insight">0</p>
+                
+                <!-- Customer Count Metrics -->
+                <div class="insight-section">
+                    <h3>Active Customers</h3>
+                    <div class="insights-grid">
+                        <div class="insight-card">
+                            <h4>All Time</h4>
+                            <p id="customers-all-time">0</p>
+                        </div>
+                        <div class="insight-card">
+                            <h4>Past Year</h4>
+                            <p id="customers-year">0</p>
+                        </div>
+                        <div class="insight-card">
+                            <h4>This Quarter</h4>
+                            <p id="customers-quarter">0</p>
+                        </div>
+                        <div class="insight-card">
+                            <h4>This Month</h4>
+                            <p id="customers-month">0</p>
+                        </div>
                     </div>
-                    <div class="insight-card">
-                        <h4>Avg. Orders per Customer</h4>
-                        <p id="avg-orders-per-customer">0</p>
+                </div>
+                
+                <!-- Average Orders Per Customer -->
+                <div class="insight-section">
+                    <h3>Avg. Orders Per Customer</h3>
+                    <div class="insights-grid">
+                        <div class="insight-card">
+                            <h4>All Time</h4>
+                            <p id="avg-orders-all-time">0.0</p>
+                        </div>
+                        <div class="insight-card">
+                            <h4>Past Year</h4>
+                            <p id="avg-orders-year">0.0</p>
+                        </div>
+                        <div class="insight-card">
+                            <h4>This Quarter</h4>
+                            <p id="avg-orders-quarter">0.0</p>
+                        </div>
+                        <div class="insight-card">
+                            <h4>This Month</h4>
+                            <p id="avg-orders-month">0.0</p>
+                        </div>
                     </div>
-                    <div class="insight-card">
-                        <h4>Avg. Customer Value</h4>
-                        <p id="avg-customer-value">$0.00</p>
+                </div>
+                
+                <!-- Average Order Value -->
+                <div class="insight-section">
+                    <h3>Avg. Order Value</h3>
+                    <div class="insights-grid">
+                        <div class="insight-card">
+                            <h4>All Time</h4>
+                            <p id="avg-value-all-time">$0.00</p>
+                        </div>
+                        <div class="insight-card">
+                            <h4>Past Year</h4>
+                            <p id="avg-value-year">$0.00</p>
+                        </div>
+                        <div class="insight-card">
+                            <h4>This Quarter</h4>
+                            <p id="avg-value-quarter">$0.00</p>
+                        </div>
+                        <div class="insight-card">
+                            <h4>This Month</h4>
+                            <p id="avg-value-month">$0.00</p>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Add these chart containers -->
+                <!-- Charts -->
                 <div class="charts-row">
                     <div class="chart-card">
+                        <h3>Order Frequency Distribution</h3>
                         <canvas id="customer-orders-chart"></canvas>
                     </div>
                     <div class="chart-card">
-                        <canvas id="customer-spending-chart"></canvas>
+                        <h3>Order Value Distribution</h3>
+                        <canvas id="order-value-chart"></canvas>
                     </div>
                 </div>
             </div>
