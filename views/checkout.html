@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout | Weredog Demo</title>
+    <link rel="stylesheet" href="/css/main.css">
+</head>
+
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="/">Weredog Demo</a>
+            </div>
+            <ul class="nav-links" id="nav-links">
+                <!-- Navigation will be dynamically loaded here -->
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="checkout-container">
+            <div class="checkout-header">
+                <h1>Checkout</h1>
+            </div>
+
+            <div class="checkout-message">
+                <div class="message-card">
+                    <h2>Demo Mode</h2>
+                    <p>This is a demonstration site only. No actual payment processing is implemented.</p>
+                    <p>In a real e-commerce implementation, this page would include:</p>
+                    <ul>
+                        <li>Shipping address form</li>
+                        <li>Payment method selection</li>
+                        <li>Credit card/payment details</li>
+                        <li>Order summary and confirmation</li>
+                    </ul>
+                    <p>Your cart items are saved in the demo database, but no actual transaction will be processed.</p>
+                    <div class="demo-buttons">
+                        <button id="simulate-order" class="btn">Simulate Order Completion</button>
+                        <a href="/cart" class="btn btn-light">Return to Cart</a>
+                    </div>
+                </div>
+
+                <div class="order-summary-card">
+                    <h2>Order Summary</h2>
+                    <div id="checkout-items">
+                        <!-- Items will be loaded here -->
+                        <div class="loading-message">Loading cart items...</div>
+                    </div>
+                    <div class="summary-totals">
+                        <div class="summary-row">
+                            <span>Subtotal:</span>
+                            <span id="checkout-subtotal">$0.00</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Shipping:</span>
+                            <span id="checkout-shipping">$0.00</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Tax:</span>
+                            <span id="checkout-tax">$0.00</span>
+                        </div>
+                        <div class="summary-row total">
+                            <span>Total:</span>
+                            <span id="checkout-total">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="order-confirmation" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Order Simulated Successfully!</h2>
+            <p>Your demo order has been processed successfully.</p>
+            <p>Order Reference: <span id="order-reference"></span></p>
+            <p>In a real e-commerce site, you would receive a confirmation email with your order details.</p>
+            <button id="continue-shopping" class="btn">Continue Shopping</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Weredog Demo. All rights reserved.</p>
+    </footer>
+
+    <script type="module" src="/js/shared.js"></script>
+    <script type="module" src="/js/checkout.js"></script>
+    <a href="#" class="back-to-top" id="backToTop">↑</a>
+    <script type="module" src="/js/layout.js"></script>
+    <script type="module" src="/js/utils/navigation.js"></script>
+
+</body>
+
+</html>
