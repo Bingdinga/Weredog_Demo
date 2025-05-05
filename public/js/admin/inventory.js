@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
 
-                console.log('Category hierarchy:', categoryHierarchy);
+                // console.log('Category hierarchy:', categoryHierarchy);
             })
             .catch(error => {
                 console.error('Error loading categories:', error);

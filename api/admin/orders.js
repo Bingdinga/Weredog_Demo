@@ -66,6 +66,55 @@ router.get('/', (req, res) => {
   }
 });
 
+// Get recent orders
+router.get('/recent', (req, res) => {
+  try {
+    const { limit = 5 } = req.query;
+
+    const recentOrders = db.prepare(`
+      SELECT o.order_id, o.total_amount, o.status, o.created_at, u.username
+      FROM orders o
+      JOIN users u ON o.user_id = u.user_id
+      ORDER BY o.created_at DESC
+      LIMIT ?
+    `).all(limit);
+
+    res.json(recentOrders);
+  } catch (error) {
+    logger.error('Error fetching recent orders', error);
+    res.status(500).json({ error: 'Failed to fetch recent orders' });
+  }
+});
+
+router.get('/status-counts', (req, res) => {
+  try {
+    const counts = db.prepare(`
+      SELECT 
+        status,
+        COUNT(*) as count
+      FROM orders
+      WHERE status IN ('pending', 'processing', 'shipped')
+      GROUP BY status
+    `).all();
+
+    // Convert to an object with status as keys
+    const result = {
+      pending: 0,
+      processing: 0,
+      shipped: 0
+    };
+
+    counts.forEach(item => {
+      result[item.status] = item.count;
+    });
+
+    res.json(result);
+  } catch (error) {
+    logger.error('Error fetching order status counts', error);
+    res.status(500).json({ error: 'Failed to fetch order status counts' });
+  }
+});
+
 // Get single order details
 router.get('/:id', (req, res) => {
   try {
@@ -120,24 +169,6 @@ router.put('/:id/status', (req, res) => {
   }
 });
 
-// Get recent orders
-router.get('/recent', (req, res) => {
-  try {
-    const { limit = 5 } = req.query;
 
-    const recentOrders = db.prepare(`
-      SELECT o.order_id, o.total_amount, o.status, o.created_at, u.username
-      FROM orders o
-      JOIN users u ON o.user_id = u.user_id
-      ORDER BY o.created_at DESC
-      LIMIT ?
-    `).all(limit);
-
-    res.json(recentOrders);
-  } catch (error) {
-    logger.error('Error fetching recent orders', error);
-    res.status(500).json({ error: 'Failed to fetch recent orders' });
-  }
-});
 
 module.exports = router;

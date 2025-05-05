@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.location.href = '/';
                 return;
             }
-            
+
             // Initialize dashboard
             loadDashboardData();
         })
@@ -18,24 +18,58 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Load all dashboard data
     function loadDashboardData() {
-        loadSalesOverview();
+        loadOrderStatusCounts();
+        loadRevenueMetrics();
+        loadCustomerMetrics();
         loadTopProducts();
         loadCustomerInsights();
-        // loadRecentActivity();
     }
 
-    // Load sales overview
-    function loadSalesOverview() {
-        fetch('/api/admin/analytics/sales-overview')
-            .then(response => response.json())
+    function loadOrderStatusCounts() {
+        fetch('/api/admin/orders/status-counts')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`API returned ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
-                document.getElementById('total-orders').textContent = data.total_orders || '0';
-                document.getElementById('total-revenue').textContent = `$${(data.total_revenue || 0).toFixed(2)}`;
-                document.getElementById('average-order-value').textContent = `$${(data.average_order_value || 0).toFixed(2)}`;
-                document.getElementById('total-customers').textContent = data.total_customers || '0';
+                document.getElementById('pending-orders').textContent = data.pending || '0';
+                document.getElementById('processing-orders').textContent = data.processing || '0';
+                document.getElementById('shipped-orders').textContent = data.shipped || '0';
             })
             .catch(error => {
-                console.error('Error loading sales overview:', error);
+                console.error('Error loading order status counts:', error);
+                // Set default values when API fails
+                document.getElementById('pending-orders').textContent = '0';
+                document.getElementById('processing-orders').textContent = '0';
+                document.getElementById('shipped-orders').textContent = '0';
+            });
+    }
+
+    function loadRevenueMetrics() {
+        fetch('/api/admin/analytics/revenue-breakdown')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('year-revenue').textContent = `$${(data.year || 0).toFixed(2)}`;
+                document.getElementById('quarter-revenue').textContent = `$${(data.quarter || 0).toFixed(2)}`;
+                document.getElementById('month-revenue').textContent = `$${(data.month || 0).toFixed(2)}`;
+            })
+            .catch(error => {
+                console.error('Error loading revenue metrics:', error);
+            });
+    }
+
+    function loadCustomerMetrics() {
+        fetch('/api/admin/analytics/customer-breakdown')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('year-customers').textContent = data.year || '0';
+                document.getElementById('quarter-customers').textContent = data.quarter || '0';
+                document.getElementById('month-customers').textContent = data.month || '0';
+            })
+            .catch(error => {
+                console.error('Error loading customer metrics:', error);
             });
     }
 
@@ -46,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(products => {
                 const productsContainer = document.getElementById('top-products');
                 productsContainer.innerHTML = '';
-                
+
                 products.forEach(product => {
                     const productElement = document.createElement('div');
                     productElement.className = 'product-item';
@@ -89,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
     //         .then(orders => {
     //             const ordersContainer = document.getElementById('recent-orders');
     //             ordersContainer.innerHTML = '';
-                
+
     //             orders.forEach(order => {
     //                 const orderElement = document.createElement('div');
     //                 orderElement.className = 'activity-item';
@@ -115,14 +149,14 @@ document.addEventListener('DOMContentLoaded', () => {
     //         .then(products => {
     //             const alertsContainer = document.getElementById('inventory-alerts');
     //             alertsContainer.innerHTML = '';
-                
+
     //             const lowStockProducts = products.filter(p => p.stock_quantity <= p.low_stock_threshold);
-                
+
     //             if (lowStockProducts.length === 0) {
     //                 alertsContainer.innerHTML = '<p>No low stock alerts</p>';
     //                 return;
     //             }
-                
+
     //             lowStockProducts.forEach(product => {
     //                 const alertElement = document.createElement('div');
     //                 alertElement.className = 'activity-item';
@@ -149,11 +183,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (link.getAttribute('href').startsWith('#')) {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
-                
+
                 // Update active link
                 navLinks.forEach(l => l.classList.remove('active'));
                 link.classList.add('active');
-                
+
                 // Navigate to the page
                 const targetPage = link.getAttribute('href').substring(1);
                 if (targetPage && targetPage !== 'dashboard') {

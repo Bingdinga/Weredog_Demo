@@ -155,4 +155,115 @@ router.get('/customer-insights', (req, res) => {
   }
 });
 
+router.get('/revenue-breakdown', (req, res) => {
+  try {
+    const currentDate = new Date(2025, 4, 4); // May 4, 2025 (using your system date)
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth() + 1; // JavaScript months are 0-based
+
+    // Determine current quarter
+    const currentQuarter = Math.ceil(currentMonth / 3);
+    const quarterStartMonth = (currentQuarter - 1) * 3 + 1;
+
+    // Format dates for SQL queries
+    const yearStart = `${currentYear}-01-01`;
+    const quarterStart = `${currentYear}-${String(quarterStartMonth).padStart(2, '0')}-01`;
+    const monthStart = `${currentYear}-${String(currentMonth).padStart(2, '0')}-01`;
+
+    // Get revenue for year
+    const yearRevenue = db.prepare(`
+      SELECT SUM(total_amount) as revenue
+      FROM orders
+      WHERE status != 'cancelled'
+      AND created_at >= ?
+      AND created_at < ?
+    `).get(yearStart, `${currentYear + 1}-01-01`);
+
+    // Get revenue for quarter
+    const quarterRevenue = db.prepare(`
+      SELECT SUM(total_amount) as revenue
+      FROM orders
+      WHERE status != 'cancelled'
+      AND created_at >= ?
+      AND created_at < ?
+    `).get(quarterStart, quarterStartMonth + 3 > 12 ? `${currentYear + 1}-01-01` : `${currentYear}-${String(quarterStartMonth + 3).padStart(2, '0')}-01`);
+
+    // Get revenue for month
+    const monthRevenue = db.prepare(`
+      SELECT SUM(total_amount) as revenue
+      FROM orders
+      WHERE status != 'cancelled'
+      AND created_at >= ?
+      AND created_at < ?
+    `).get(monthStart, currentMonth + 1 > 12 ? `${currentYear + 1}-01-01` : `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`);
+
+    res.json({
+      year: yearRevenue.revenue || 0,
+      quarter: quarterRevenue.revenue || 0,
+      month: monthRevenue.revenue || 0,
+      quarterLabel: `Q${currentQuarter} ${currentYear}`,
+      monthLabel: new Date(currentYear, currentMonth - 1).toLocaleString('default', { month: 'long' }) + ` ${currentYear}`
+    });
+  } catch (error) {
+    logger.error('Error fetching revenue breakdown', error);
+    res.status(500).json({ error: 'Failed to fetch revenue breakdown' });
+  }
+});
+
+// Get customer breakdown by year, quarter, and month
+router.get('/customer-breakdown', (req, res) => {
+  try {
+    const currentDate = new Date(2025, 4, 4); // May 4, 2025 (using your system date)
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth() + 1; // JavaScript months are 0-based
+
+    // Determine current quarter
+    const currentQuarter = Math.ceil(currentMonth / 3);
+    const quarterStartMonth = (currentQuarter - 1) * 3 + 1;
+
+    // Format dates for SQL queries
+    const yearStart = `${currentYear}-01-01`;
+    const quarterStart = `${currentYear}-${String(quarterStartMonth).padStart(2, '0')}-01`;
+    const monthStart = `${currentYear}-${String(currentMonth).padStart(2, '0')}-01`;
+
+    // Get customers for year
+    const yearCustomers = db.prepare(`
+      SELECT COUNT(DISTINCT user_id) as count
+      FROM orders
+      WHERE status != 'cancelled'
+      AND created_at >= ?
+      AND created_at < ?
+    `).get(yearStart, `${currentYear + 1}-01-01`);
+
+    // Get customers for quarter
+    const quarterCustomers = db.prepare(`
+      SELECT COUNT(DISTINCT user_id) as count
+      FROM orders
+      WHERE status != 'cancelled'
+      AND created_at >= ?
+      AND created_at < ?
+    `).get(quarterStart, quarterStartMonth + 3 > 12 ? `${currentYear + 1}-01-01` : `${currentYear}-${String(quarterStartMonth + 3).padStart(2, '0')}-01`);
+
+    // Get customers for month
+    const monthCustomers = db.prepare(`
+      SELECT COUNT(DISTINCT user_id) as count
+      FROM orders
+      WHERE status != 'cancelled'
+      AND created_at >= ?
+      AND created_at < ?
+    `).get(monthStart, currentMonth + 1 > 12 ? `${currentYear + 1}-01-01` : `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`);
+
+    res.json({
+      year: yearCustomers.count || 0,
+      quarter: quarterCustomers.count || 0,
+      month: monthCustomers.count || 0,
+      quarterLabel: `Q${currentQuarter} ${currentYear}`,
+      monthLabel: new Date(currentYear, currentMonth - 1).toLocaleString('default', { month: 'long' }) + ` ${currentYear}`
+    });
+  } catch (error) {
+    logger.error('Error fetching customer breakdown', error);
+    res.status(500).json({ error: 'Failed to fetch customer breakdown' });
+  }
+});
+
 module.exports = router;

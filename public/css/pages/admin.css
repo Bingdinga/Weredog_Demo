@@ -542,3 +542,38 @@
 .pagination-btn.active {
     background-color: var(--color-primary);
 }
+
+.order-status-container,
+.revenue-container,
+.customers-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.status-item,
+.revenue-item,
+.customer-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.status-label,
+.revenue-label,
+.customer-label {
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+}
+
+.dashboard-card .dashboard-stat {
+    font-size: 1.4rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
