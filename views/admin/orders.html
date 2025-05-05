@@ -41,7 +41,7 @@
             <div class="order-filters">
 
                 <input type="text" id="username-search" class="form-control" placeholder="Search by username...">
-                
+
                 <select id="status-filter" class="form-control">
                     <option value="">All Statuses</option>
                     <option value="pending">Pending</option>
@@ -51,14 +51,14 @@
                     <option value="cancelled">Cancelled</option>
                 </select>
 
-                <select id="sort-filter" class="form-control">
+                <!-- <select id="sort-filter" class="form-control">
                     <option value="created_at:desc">Date (Newest First)</option>
                     <option value="created_at:asc">Date (Oldest First)</option>
                     <option value="order_id:desc">Order ID (Highest First)</option>
                     <option value="order_id:asc">Order ID (Lowest First)</option>
                     <option value="username:asc">Customer (A-Z)</option>
                     <option value="username:desc">Customer (Z-A)</option>
-                </select>
+                </select> -->
 
                 <input type="date" id="start-date-filter" class="form-control" placeholder="mm/dd/yyyy">
                 <input type="date" id="end-date-filter" class="form-control" placeholder="mm/dd/yyyy">
@@ -70,12 +70,12 @@
             <table class="admin-table" id="orders-table">
                 <thead>
                     <tr>
-                        <th>Order ID</th>
-                        <th>Customer</th>
+                        <th class="sortable" data-sort="order_id">Order ID</th>
+                        <th class="sortable" data-sort="username">Customer</th>
                         <th>Status</th>
-                        <th>Total Amount</th>
+                        <th class="sortable" data-sort="total_amount">Total Amount</th>
                         <th>Items</th>
-                        <th>Date</th>
+                        <th class="sortable" data-sort="created_at">Date</th>
                         <th>Actions</th>
                     </tr>
                 </thead>

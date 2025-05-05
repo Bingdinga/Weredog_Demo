@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const orderModal = document.getElementById('order-modal');
     const orderDetails = document.getElementById('order-details');
     const closeModal = document.querySelector('.close');
-    const sortFilter = document.getElementById('sort-filter');
+    // const sortFilter = document.getElementById('sort-filter');
     const usernameSearch = document.getElementById('username-search');
 
     // State
@@ -24,8 +24,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // debugPaginationData();
 
-    // Add event listeners for sortable columns
+    // Add event listeners for sortable columns and initialize the UI
     document.querySelectorAll('th.sortable').forEach(th => {
+        // Set initial sort indicator based on default sort
+        if (th.dataset.sort === currentSort) {
+            th.classList.add(`sort-${sortDirection}`);
+        }
+
         th.addEventListener('click', () => {
             const sortField = th.dataset.sort;
 
@@ -65,10 +70,10 @@ document.addEventListener('DOMContentLoaded', () => {
         loadOrders();
     });
 
-    sortFilter.addEventListener('change', () => {
-        currentPage = 1; // Reset to first page when changing sort
-        loadOrders();
-    });
+    // sortFilter.addEventListener('change', () => {
+    //     currentPage = 1; // Reset to first page when changing sort
+    //     loadOrders();
+    // });
 
     startDateFilter.addEventListener('change', () => {
         currentPage = 1;
@@ -84,8 +89,19 @@ document.addEventListener('DOMContentLoaded', () => {
         statusFilter.value = '';
         startDateFilter.value = '';
         endDateFilter.value = '';
-        sortFilter.value = 'created_at:desc';
         usernameSearch.value = ''; // Clear the search
+        // Reset to default sort
+        currentSort = 'created_at';
+        sortDirection = 'desc';
+
+        // Update UI to show current sort
+        document.querySelectorAll('th.sortable').forEach(header => {
+            header.classList.remove('sort-asc', 'sort-desc');
+            if (header.dataset.sort === currentSort) {
+                header.classList.add(`sort-${sortDirection}`);
+            }
+        });
+
         currentPage = 1;
         loadOrders();
     });
@@ -149,10 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Functions
     function loadOrders() {
-        console.log("loadOrders called with currentPage:", currentPage);
-
-        // Parse the sort filter value (format: field:direction)
-        const [sortField, sortDirection] = (sortFilter.value || 'created_at:desc').split(':');
+        // console.log("loadOrders called with currentPage:", currentPage);
 
         const params = new URLSearchParams({
             page: currentPage,
@@ -160,12 +173,12 @@ document.addEventListener('DOMContentLoaded', () => {
             status: statusFilter.value || '',
             startDate: startDateFilter.value || '',
             endDate: endDateFilter.value || '',
-            sort: sortField,
+            sort: currentSort,
             direction: sortDirection,
-            search: usernameSearch.value || '' // Add the search parameter
+            search: usernameSearch.value || ''
         });
 
-        console.log("Fetching orders with params:", params.toString());
+        // console.log("Fetching orders with params:", params.toString());
 
         // Show loading indicator
         ordersTableBody.innerHTML = '<tr><td colspan="7" class="loading-cell">Loading orders...</td></tr>';
@@ -178,10 +191,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 return response.json();
             })
             .then(data => {
-                console.log("Orders response:", {
-                    orderCount: data.orders ? data.orders.length : 0,
-                    pagination: data.pagination
-                });
+                // console.log("Orders response:", {
+                //     orderCount: data.orders ? data.orders.length : 0,
+                //     pagination: data.pagination
+                // });
 
                 displayOrders(data.orders || []);
                 setupPagination(data.pagination || { page: 1, total: 0, limit: 20 });
