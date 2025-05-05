@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loadSalesOverview();
         loadTopProducts();
         loadCustomerInsights();
-        loadRecentActivity();
+        // loadRecentActivity();
     }
 
     // Load sales overview
@@ -82,66 +82,66 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Load recent activity
-    function loadRecentActivity() {
-        // Load recent orders
-        fetch('/api/admin/orders/recent?limit=5')
-            .then(response => response.json())
-            .then(orders => {
-                const ordersContainer = document.getElementById('recent-orders');
-                ordersContainer.innerHTML = '';
+    // function loadRecentActivity() {
+    //     // Load recent orders
+    //     fetch('/api/admin/orders/recent?limit=5')
+    //         .then(response => response.json())
+    //         .then(orders => {
+    //             const ordersContainer = document.getElementById('recent-orders');
+    //             ordersContainer.innerHTML = '';
                 
-                orders.forEach(order => {
-                    const orderElement = document.createElement('div');
-                    orderElement.className = 'activity-item';
-                    orderElement.innerHTML = `
-                        <div>
-                            <strong>Order #${order.order_id}</strong>
-                            <p>$${order.total_amount.toFixed(2)} - ${order.status}</p>
-                        </div>
-                        <div>
-                            ${new Date(order.created_at).toLocaleDateString()}
-                        </div>
-                    `;
-                    ordersContainer.appendChild(orderElement);
-                });
-            })
-            .catch(error => {
-                console.error('Error loading recent orders:', error);
-            });
+    //             orders.forEach(order => {
+    //                 const orderElement = document.createElement('div');
+    //                 orderElement.className = 'activity-item';
+    //                 orderElement.innerHTML = `
+    //                     <div>
+    //                         <strong>Order #${order.order_id}</strong>
+    //                         <p>$${order.total_amount.toFixed(2)} - ${order.status}</p>
+    //                     </div>
+    //                     <div>
+    //                         ${new Date(order.created_at).toLocaleDateString()}
+    //                     </div>
+    //                 `;
+    //                 ordersContainer.appendChild(orderElement);
+    //             });
+    //         })
+    //         .catch(error => {
+    //             console.error('Error loading recent orders:', error);
+    //         });
 
-        // Load inventory alerts
-        fetch('/api/admin/inventory/products?low_stock=true')
-            .then(response => response.json())
-            .then(products => {
-                const alertsContainer = document.getElementById('inventory-alerts');
-                alertsContainer.innerHTML = '';
+    //     // Load inventory alerts
+    //     fetch('/api/admin/inventory/products?low_stock=true')
+    //         .then(response => response.json())
+    //         .then(products => {
+    //             const alertsContainer = document.getElementById('inventory-alerts');
+    //             alertsContainer.innerHTML = '';
                 
-                const lowStockProducts = products.filter(p => p.stock_quantity <= p.low_stock_threshold);
+    //             const lowStockProducts = products.filter(p => p.stock_quantity <= p.low_stock_threshold);
                 
-                if (lowStockProducts.length === 0) {
-                    alertsContainer.innerHTML = '<p>No low stock alerts</p>';
-                    return;
-                }
+    //             if (lowStockProducts.length === 0) {
+    //                 alertsContainer.innerHTML = '<p>No low stock alerts</p>';
+    //                 return;
+    //             }
                 
-                lowStockProducts.forEach(product => {
-                    const alertElement = document.createElement('div');
-                    alertElement.className = 'activity-item';
-                    alertElement.innerHTML = `
-                        <div>
-                            <strong>${product.name}</strong>
-                            <p>Low stock: ${product.stock_quantity} remaining</p>
-                        </div>
-                        <div>
-                            <span class="low-stock-badge">Low Stock</span>
-                        </div>
-                    `;
-                    alertsContainer.appendChild(alertElement);
-                });
-            })
-            .catch(error => {
-                console.error('Error loading inventory alerts:', error);
-            });
-    }
+    //             lowStockProducts.forEach(product => {
+    //                 const alertElement = document.createElement('div');
+    //                 alertElement.className = 'activity-item';
+    //                 alertElement.innerHTML = `
+    //                     <div>
+    //                         <strong>${product.name}</strong>
+    //                         <p>Low stock: ${product.stock_quantity} remaining</p>
+    //                     </div>
+    //                     <div>
+    //                         <span class="low-stock-badge">Low Stock</span>
+    //                     </div>
+    //                 `;
+    //                 alertsContainer.appendChild(alertElement);
+    //             });
+    //         })
+    //         .catch(error => {
+    //             console.error('Error loading inventory alerts:', error);
+    //         });
+    // }
 
     // Navigation handling
     const navLinks = document.querySelectorAll('.admin-sidebar-nav a');
