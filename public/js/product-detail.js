@@ -3,8 +3,6 @@ let useExistingTexture = false;
 
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Setup tab functionality
-    setupTabsNavigation();
     // Get product ID from URL
     const productId = window.location.pathname.split('/').pop();
 
@@ -477,109 +475,5 @@ document.addEventListener('DOMContentLoaded', () => {
                     alert('Error updating wishlist');
                 }
             });
-    }
-    
-    // Function to handle tab navigation
-    function setupTabsNavigation() {
-        const tabButtons = document.querySelectorAll('.tab-btn');
-        const tabContents = document.querySelectorAll('.tab-content');
-        
-        // Add click event listeners to all tab buttons
-        tabButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                // Remove active class from all buttons and contents
-                tabButtons.forEach(btn => btn.classList.remove('active'));
-                tabContents.forEach(content => content.classList.remove('active'));
-                
-                // Add active class to the clicked button
-                button.classList.add('active');
-                
-                // Get the tab name from data attribute
-                const tabName = button.getAttribute('data-tab');
-                
-                // Add active class to the corresponding content
-                const activeContent = document.getElementById(`${tabName}-tab`);
-                if (activeContent) {
-                    activeContent.classList.add('active');
-                }
-            });
-        });
-    }
-    
-    // Function to load content for specific tabs
-    function loadTabContent(tabName, productId) {
-        const contentElement = document.getElementById(`${tabName}-tab`);
-        
-        if (!contentElement) return;
-        
-        switch(tabName) {
-            case 'description':
-                // Description is already loaded with the product data
-                // This is now handled in the loadProductData function
-                break;
-                
-            case 'details':
-                // For the details tab, since the API endpoint doesn't exist yet,
-                // just display a placeholder message instead of making the API call
-                if (contentElement.querySelector('#product-details').textContent === 'Loading product details...') {
-                    contentElement.querySelector('#product-details').innerHTML = '<p>No additional details available for this product at this time.</p>';
-                }
-                break;
-                
-            case 'reviews':
-                // Load reviews from API if not already loaded
-                if (contentElement.querySelector('#product-reviews').textContent === 'Loading reviews...') {
-                    // Check if reviews API exists or just show placeholder
-                    contentElement.querySelector('#product-reviews').innerHTML = '<p>No reviews available for this product yet.</p>';
-                    // If you implement the reviews API in the future, you can uncomment the fetch code below
-                    /*
-                    fetch(`/api/products/${productId}/reviews`)
-                        .then(response => {
-                            if (!response.ok) {
-                                contentElement.querySelector('#product-reviews').innerHTML = '<p>No reviews available for this product yet.</p>';
-                                return Promise.reject('Reviews not found');
-                            }
-                            return response.json();
-                        })
-                        .then(reviews => {
-                            if (reviews && reviews.length > 0) {
-                                let reviewsHTML = '';
-                                reviews.forEach(review => {
-                                    // Create star rating
-                                    let stars = '';
-                                    for (let i = 0; i < 5; i++) {
-                                        if (i < review.rating) {
-                                            stars += '★'; // Filled star
-                                        } else {
-                                            stars += '☆'; // Empty star
-                                        }
-                                    }
-                                    
-                                    reviewsHTML += `
-                                        <div class="review-item">
-                                            <div class="review-header">
-                                                <span class="review-author">${review.username}</span>
-                                                <span class="review-rating">${stars}</span>
-                                                <span class="review-date">${new Date(review.created_at).toLocaleDateString()}</span>
-                                            </div>
-                                            <div class="review-content">${review.comment}</div>
-                                        </div>
-                                    `;
-                                });
-                                contentElement.querySelector('#product-reviews').innerHTML = reviewsHTML;
-                            } else {
-                                contentElement.querySelector('#product-reviews').innerHTML = '<p>No reviews available for this product yet.</p>';
-                            }
-                        })
-                        .catch(error => {
-                            if (error !== 'Reviews not found') {
-                                console.error('Error loading product reviews:', error);
-                                contentElement.querySelector('#product-reviews').innerHTML = '<p>Error loading product reviews.</p>';
-                            }
-                        });
-                    */
-                }
-                break;
-        }
     }
 });
