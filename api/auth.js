@@ -186,4 +186,94 @@ router.post('/logout', (req, res) => {
   }
 });
 
+// Update user profile
+router.put('/update-profile', (req, res) => {
+  try {
+    // Check if user is authenticated
+    if (!req.session || !req.session.userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    const userId = req.session.userId;
+    const { email, firstName, lastName, currentPassword, newPassword } = req.body;
+
+    // Validate email if provided
+    if (email && !isValidEmail(email)) {
+      return res.status(400).json({ error: 'Invalid email format' });
+    }
+
+    // Start transaction
+    db.exec('BEGIN TRANSACTION');
+
+    try {
+      // Check if email is already taken by another user
+      if (email) {
+        const existingUser = db.prepare(`
+          SELECT user_id FROM users 
+          WHERE email = ? AND user_id != ?
+        `).get(email, userId);
+
+        if (existingUser) {
+          db.exec('ROLLBACK');
+          return res.status(409).json({ error: 'Email is already in use' });
+        }
+      }
+
+      // If password change is requested
+      if (currentPassword && newPassword) {
+        // Get current password hash
+        const user = db.prepare('SELECT password_hash FROM users WHERE user_id = ?').get(userId);
+        
+        // Verify current password
+        const passwordMatch = bcrypt.compareSync(currentPassword, user.password_hash);
+        if (!passwordMatch) {
+          db.exec('ROLLBACK');
+          return res.status(401).json({ error: 'Current password is incorrect' });
+        }
+        
+        // Validate new password
+        const passwordValidation = isValidPassword(newPassword);
+        if (!passwordValidation.valid) {
+          db.exec('ROLLBACK');
+          return res.status(400).json({ error: passwordValidation.message });
+        }
+        
+        // Hash new password
+        const saltRounds = 10;
+        const newPasswordHash = bcrypt.hashSync(newPassword, saltRounds);
+        
+        // Update user with new password
+        db.prepare(`
+          UPDATE users 
+          SET email = COALESCE(?, email),
+              first_name = COALESCE(?, first_name),
+              last_name = COALESCE(?, last_name),
+              password_hash = ?
+          WHERE user_id = ?
+        `).run(email || null, firstName || null, lastName || null, newPasswordHash, userId);
+      } else {
+        // Update user without changing password
+        db.prepare(`
+          UPDATE users 
+          SET email = COALESCE(?, email),
+              first_name = COALESCE(?, first_name),
+              last_name = COALESCE(?, last_name)
+          WHERE user_id = ?
+        `).run(email || null, firstName || null, lastName || null, userId);
+      }
+
+      // Commit transaction
+      db.exec('COMMIT');
+      
+      res.json({ success: true });
+    } catch (error) {
+      db.exec('ROLLBACK');
+      throw error;
+    }
+  } catch (error) {
+    logger.error('Error updating profile', error);
+    res.status(500).json({ error: 'Failed to update profile' });
+  }
+});
+
 module.exports = router;

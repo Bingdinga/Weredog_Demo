@@ -103,7 +103,7 @@ function updateNavigation() {
                 }
             } else {
                 // Log for debugging - this means we're on an admin page
-                console.log('No account link found - likely on admin page');
+                // console.log('No account link found - likely on admin page');
             }
         })
         .catch(error => {

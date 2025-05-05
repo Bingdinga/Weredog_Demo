@@ -114,13 +114,13 @@ function getMaterialType() {
  * @param {boolean} preserveTextures - Whether to preserve existing textures
  */
 export function applyMaterialToModel(modelObject, preserveTextures = false) {
-    console.log(`Applying materials. Preserve textures: ${preserveTextures}`);
+    // console.log(`Applying materials. Preserve textures: ${preserveTextures}`);
 
     if (preserveTextures) {
         // Preserve existing materials and textures
         modelObject.traverse((node) => {
             if (node.isMesh && node.material) {
-                console.log('Preserving existing material on mesh:', node.name);
+                // console.log('Preserving existing material on mesh:', node.name);
                 // Keep existing material but ensure it's visible
                 if (node.material.emissive) {
                     node.material.emissive.setHex(0x333333);
@@ -131,7 +131,7 @@ export function applyMaterialToModel(modelObject, preserveTextures = false) {
         });
     } else {
         // Apply random matte material
-        console.log('Applying random matte materials');
+        // console.log('Applying random matte materials');
         applyRandomMatteMaterial(modelObject);
     }
 }

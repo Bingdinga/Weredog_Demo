@@ -108,7 +108,7 @@ class ProductCardModel {
                 this.model = gltf.scene;
 
                 // Use the texture flag
-                console.log(`Applying materials to product card model. useExistingTexture: ${this.useExistingTexture}`);
+                // console.log(`Applying materials to product card model. useExistingTexture: ${this.useExistingTexture}`);
                 applyMaterialToModel(this.model, this.useExistingTexture);
 
                 this.scene.add(this.model);
