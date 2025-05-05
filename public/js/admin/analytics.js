@@ -167,9 +167,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Create customer insights charts
     function createCustomerInsightsChart(data) {
         console.log("Creating customer insights charts...");
-        console.log("Looking for canvas elements:",
-            document.getElementById('customer-orders-chart'),
-            document.getElementById('customer-spending-chart'));
+        // console.log("Looking for canvas elements:",
+        //     document.getElementById('customer-orders-chart'),
+        //     document.getElementById('customer-spending-chart'));
 
         // Check if customer-orders-chart exists
         const ordersCanvas = document.getElementById('customer-orders-chart');

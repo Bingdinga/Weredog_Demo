@@ -23,7 +23,11 @@ function loadNavigation() {
 
 function getAdminNavigation(user) {
     return `
-        <li class="nav-dropdown">
+        <li><a href="/admin">Dashboard</a></li>
+        <li><a href="/admin/inventory">Inventory</a></li>
+        <li><a href="/admin/orders">Orders</a></li>
+        <li><a href="/admin/analytics">Analytics</a></li>
+                <li class="nav-dropdown">
             <a href="#" class="dropdown-trigger">Customer Views ▼</a>
             <ul class="dropdown-menu">
                 <li><a href="/">Home</a></li>
@@ -33,10 +37,6 @@ function getAdminNavigation(user) {
                 <li><a href="/wishlist">Wishlist</a></li>
             </ul>
         </li>
-        <li><a href="/admin">Dashboard</a></li>
-        <li><a href="/admin/inventory">Inventory</a></li>
-        <li><a href="/admin/orders">Orders</a></li>
-        <li><a href="/admin/analytics">Analytics</a></li>
         <li class="nav-dropdown">
             <a href="#" class="dropdown-trigger">Hi, ${user.first_name || user.username} ▼</a>
             <ul class="dropdown-menu">
