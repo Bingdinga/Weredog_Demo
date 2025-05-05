@@ -62,12 +62,12 @@
             <table class="admin-table" id="product-table">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Product Name</th>
+                        <th class="sortable" data-sort="product_id">ID</th>
+                        <th class="sortable" data-sort="name">Product Name</th>
                         <th>Category</th>
-                        <th>Stock</th>
+                        <th class="sortable" data-sort="stock_quantity">Stock</th>
                         <th>Low Stock Threshold</th>
-                        <th>Price</th>
+                        <th class="sortable" data-sort="price">Price</th>
                         <th>Status</th>
                     </tr>
                 </thead>
@@ -75,6 +75,7 @@
                     <!-- Products will be loaded here -->
                 </tbody>
             </table>
+            <div class="pagination" id="pagination"></div>
         </main>
     </div>
 
