@@ -107,6 +107,87 @@ router.get('/low-stock', (req, res) => {
   }
 });
 
+// Update product details
+router.put('/products/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+    const { stock_quantity, low_stock_threshold, price } = req.body;
+    const adminId = req.session.userId;
+
+    // Validate inputs
+    if (stock_quantity !== undefined && (!Number.isInteger(parseInt(stock_quantity)) || parseInt(stock_quantity) < 0)) {
+      return res.status(400).json({ error: 'Invalid stock quantity', success: false });
+    }
+
+    if (low_stock_threshold !== undefined && (!Number.isInteger(parseInt(low_stock_threshold)) || parseInt(low_stock_threshold) < 0)) {
+      return res.status(400).json({ error: 'Invalid stock threshold', success: false });
+    }
+
+    if (price !== undefined && (isNaN(parseFloat(price)) || parseFloat(price) < 0)) {
+      return res.status(400).json({ error: 'Invalid price', success: false });
+    }
+
+    // Get current product data
+    const currentProduct = db.prepare('SELECT * FROM products WHERE product_id = ?').get(id);
+    if (!currentProduct) {
+      return res.status(404).json({ error: 'Product not found', success: false });
+    }
+
+    // Begin transaction
+    db.exec('BEGIN TRANSACTION');
+
+    try {
+      const updates = [];
+      const params = [];
+
+      if (stock_quantity !== undefined) {
+        updates.push('stock_quantity = ?');
+        params.push(parseInt(stock_quantity));
+      }
+
+      if (low_stock_threshold !== undefined) {
+        updates.push('low_stock_threshold = ?');
+        params.push(parseInt(low_stock_threshold));
+      }
+
+      if (price !== undefined) {
+        updates.push('price = ?');
+        params.push(parseFloat(price));
+      }
+
+      if (updates.length === 0) {
+        db.exec('ROLLBACK');
+        return res.status(400).json({ error: 'No valid updates provided', success: false });
+      }
+
+      // Update product
+      const updateQuery = `UPDATE products SET ${updates.join(', ')} WHERE product_id = ?`;
+      db.prepare(updateQuery).run(...params, id);
+
+      // Log stock changes if stock was updated
+      if (stock_quantity !== undefined) {
+        const quantityChange = parseInt(stock_quantity) - currentProduct.stock_quantity;
+
+        if (quantityChange !== 0) {
+          db.prepare(`
+            INSERT INTO inventory_log (product_id, quantity_change, reason, admin_user_id)
+            VALUES (?, ?, ?, ?)
+          `).run(id, quantityChange, 'manual_adjustment', adminId);
+        }
+      }
+
+      db.exec('COMMIT');
+      res.json({ success: true });
+    } catch (error) {
+      db.exec('ROLLBACK');
+      throw error;
+    }
+  } catch (error) {
+    logger.error('Error updating product', error);
+    res.status(500).json({ error: 'Failed to update product', success: false });
+  }
+});
+
 // Update product stock
 router.put('/products/:id/stock', (req, res) => {
   try {

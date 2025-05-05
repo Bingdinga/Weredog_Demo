@@ -282,6 +282,7 @@
 .sortable {
     cursor: pointer;
     position: relative;
+    padding-right: 15px;
 }
 
 .sortable:hover {
@@ -295,15 +296,26 @@
     margin-left: 5px;
 }
 
-th.sort-asc .sort-icon::after {
-    content: " ▲";
+.sortable::after {
+    content: '⇕';
+    /* Default bidirectional arrow */
+    position: absolute;
+    right: 8px;
+    opacity: 0.5;
     font-size: 0.8em;
+}
+
+th.sort-asc::after {
+    content: '▲';
+    /* Up arrow when sorted ascending */
+    opacity: 1;
     color: var(--color-primary);
 }
 
-th.sort-desc .sort-icon::after {
-    content: " ▼";
-    font-size: 0.8em;
+th.sort-desc::after {
+    content: '▼';
+    /* Down arrow when sorted descending */
+    opacity: 1;
     color: var(--color-primary);
 }
 

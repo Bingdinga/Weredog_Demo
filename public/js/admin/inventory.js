@@ -46,45 +46,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
     applyButton.addEventListener('click', applyBulkUpdates);
 
-    // Add sorting functionality to table headers
-    document.querySelectorAll('#product-table th').forEach(th => {
-        // Add sortable class to columns that should be sortable
-        const sortableColumns = ['ID', 'Product Name', 'Stock', 'Price'];
-        if (sortableColumns.includes(th.textContent.trim())) {
-            th.classList.add('sortable');
-
-            // Map header text to database column name
-            const columnMap = {
-                'ID': 'product_id',
-                'Product Name': 'name',
-                'Stock': 'stock_quantity',
-                'Price': 'price'
-            };
-
-            th.dataset.sort = columnMap[th.textContent.trim()];
-
-            th.addEventListener('click', () => {
-                const sortField = th.dataset.sort;
-
-                // Toggle sort direction if clicking the same column
-                if (sortField === currentSort) {
-                    sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
-                } else {
-                    currentSort = sortField;
-                    sortDirection = 'desc'; // Default to descending for new sort column
-                }
-
-                // Update UI to show sort direction
-                document.querySelectorAll('th.sortable').forEach(header => {
-                    header.classList.remove('sort-asc', 'sort-desc');
-                });
-                th.classList.add(`sort-${sortDirection}`);
-
-                // Reset to first page and load products with new sort
-                currentPage = 1;
-                loadInventory();
-            });
+    // Add event listeners for sortable columns
+    document.querySelectorAll('th.sortable').forEach(th => {
+        // Set initial sort indicator based on default sort
+        if (th.dataset.sort === currentSort) {
+            th.classList.add(`sort-${sortDirection}`);
         }
+
+        th.addEventListener('click', () => {
+            const sortField = th.dataset.sort;
+
+            // Toggle sort direction if clicking the same column
+            if (sortField === currentSort) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort = sortField;
+                sortDirection = 'desc'; // Default to descending for new sort column
+            }
+
+            // Update UI to show sort direction
+            document.querySelectorAll('th.sortable').forEach(header => {
+                header.classList.remove('sort-asc', 'sort-desc');
+            });
+            th.classList.add(`sort-${sortDirection}`);
+
+            // Reset to first page and load products with new sort
+            currentPage = 1;
+            loadInventory();
+        });
     });
 
     function loadCategories() {
@@ -361,13 +350,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const product = products.find(p => p.product_id == productId);
             return {
                 product_id: parseInt(productId),
-                stock_quantity: changes.stock_quantity !== undefined ? parseInt(changes.stock_quantity) : product.stock_quantity,
-                low_stock_threshold: changes.low_stock_threshold !== undefined ? parseInt(changes.low_stock_threshold) : product.low_stock_threshold,
-                price: changes.price !== undefined ? parseFloat(changes.price) : product.price
+                stock_quantity: changes.stock_quantity !== undefined ? parseInt(changes.stock_quantity) : undefined,
+                low_stock_threshold: changes.low_stock_threshold !== undefined ? parseInt(changes.low_stock_threshold) : undefined,
+                price: changes.price !== undefined ? parseFloat(changes.price) : undefined
             };
         });
 
-        // First send individual updates
+        // Show loading notification
+        showNotification('Applying updates...', 'info');
+
+        // Send individual updates
         Promise.all(updates.map(update =>
             fetch(`/api/admin/inventory/products/${update.product_id}`, {
                 method: 'PUT',
@@ -376,8 +368,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 body: JSON.stringify(update)
             })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Status ${response.status}`);
+                    }
+                    return response.json();
+                })
         ))
-            .then(responses => Promise.all(responses.map(r => r.json())))
             .then(results => {
                 const failures = results.filter(r => !r.success);
                 if (failures.length > 0) {
@@ -395,7 +392,7 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .catch(error => {
                 console.error('Error applying updates:', error);
-                showNotification('Error applying updates', 'error');
+                showNotification('Error applying updates. Check console for details.', 'error');
             });
     }
 
