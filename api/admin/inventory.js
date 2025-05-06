@@ -7,7 +7,7 @@ const logger = require('../../utils/logger');
 // Get all products for inventory management
 router.get('/products', (req, res) => {
   try {
-    const { page = 1, limit = 20, sort = 'product_id', direction = 'desc', category, stockFilter, search } = req.query;
+    const { page = 1, limit = 20, sort = 'product_id', direction = 'desc', category, categories, stockFilter, search } = req.query;
 
     // Parse page and limit as integers
     const pageNum = parseInt(page) || 1;
@@ -17,7 +17,14 @@ router.get('/products', (req, res) => {
     let whereClause = '1=1';
     const params = [];
 
-    if (category) {
+    // Handle category filtering
+    if (categories) {
+      // Handle multiple categories (comma-separated list)
+      const categoryIds = categories.split(',');
+      whereClause += ` AND p.category_id IN (${categoryIds.map(() => '?').join(',')})`;
+      params.push(...categoryIds);
+    } else if (category) {
+      // Handle single category
       whereClause += ' AND p.category_id = ?';
       params.push(category);
     }

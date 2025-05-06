@@ -13,6 +13,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // const sortFilter = document.getElementById('sort-filter');
     const usernameSearch = document.getElementById('username-search');
 
+    // Check for URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const statusParam = urlParams.get('status');
+    const highlightOrderId = urlParams.get('highlight');
+
     // State
     let currentPage = 1;
     let totalPages = 1;
@@ -21,6 +26,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Load orders
     loadOrders();
+
+    // Apply status filter if specified in URL
+    if (statusParam) {
+        // If we have a comma-separated list of statuses
+        if (statusParam.includes(',')) {
+            // We can only set one value in the dropdown, so use the first one
+            const firstStatus = statusParam.split(',')[0];
+            statusFilter.value = firstStatus;
+
+            // Add visual indicator that multiple statuses are being filtered
+            const filtersApplied = document.createElement('div');
+            filtersApplied.className = 'filters-applied';
+            filtersApplied.innerHTML = `<strong>Filters Applied:</strong> ${statusParam.split(',').join(', ')}`;
+
+            const filtersContainer = document.querySelector('.order-filters');
+            filtersContainer.parentNode.insertBefore(filtersApplied, filtersContainer.nextSibling);
+        } else {
+            // Single status
+            statusFilter.value = statusParam;
+        }
+
+        // Load orders with this filter applied
+        currentPage = 1;
+        loadOrders();
+    }
+
+    // Highlight a specific order if requested
+    if (highlightOrderId) {
+        // Add an event listener to highlight the order after data is loaded
+        window.addEventListener('ordersLoaded', function () {
+            const orderRow = document.querySelector(`tr[data-order-id="${highlightOrderId}"]`);
+            if (orderRow) {
+                orderRow.classList.add('highlighted');
+                orderRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+    }
 
     // debugPaginationData();
 
@@ -239,6 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const viewBtn = row.querySelector('.view-order');
             viewBtn.addEventListener('click', () => viewOrderDetails(order.order_id));
         });
+        window.dispatchEvent(new Event('ordersLoaded'));
     }
 
     function setupPagination(pagination) {

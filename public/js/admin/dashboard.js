@@ -21,8 +21,98 @@ document.addEventListener('DOMContentLoaded', () => {
         loadOrderStatusCounts();
         loadRevenueMetrics();
         loadCustomerMetrics();
-        loadTopProducts();
-        loadCustomerInsights();
+        loadLowStockItems();
+        loadPendingOrders();
+    }
+
+    function loadPendingOrders() {
+        // Send two separate fetch requests - one for each status
+        Promise.all([
+            fetch('/api/admin/orders?status=pending&limit=50'),
+            fetch('/api/admin/orders?status=processing&limit=50')
+        ])
+            .then(responses => Promise.all(responses.map(response => response.json())))
+            .then(([pendingData, processingData]) => {
+                const ordersContainer = document.getElementById('recent-orders');
+                ordersContainer.innerHTML = '';
+
+                // Combine both sets of orders
+                const allOrders = [...(pendingData.orders || []), ...(processingData.orders || [])];
+
+                // Sort by date (most recent first)
+                allOrders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+                if (allOrders.length === 0) {
+                    ordersContainer.innerHTML = '<p class="empty-message">No pending or processing orders at this time.</p>';
+                    return;
+                }
+
+                // Create a div for each order and add it to the container
+                allOrders.forEach(order => {
+                    const orderElement = document.createElement('div');
+                    orderElement.className = 'order-row';
+
+                    // Simple structure with direct children
+                    orderElement.innerHTML = `
+                        <div class="order-status status-${order.status}">${order.status}</div>
+                        <div class="order-date">${new Date(order.created_at).toLocaleDateString()}</div>
+                        <div class="order-id">#${order.order_id}</div>
+                        <div class="order-customer">${order.username}</div>
+                        <div class="order-amount">$${order.total_amount.toFixed(2)}</div>
+                    `;
+
+                    ordersContainer.appendChild(orderElement);
+                });
+            })
+            .catch(error => {
+                console.error('Error loading pending/processing orders:', error);
+                document.getElementById('recent-orders').innerHTML =
+                    '<p class="error-message">Error loading pending/processing orders</p>';
+            });
+    }
+
+    // Add a function to view order details
+    function viewOrderDetails(orderId) {
+        // Option 1: Redirect to the orders page with a query parameter
+        window.location.href = `/admin/orders?highlight=${orderId}`;
+
+        // Option 2: Show a modal with order details (requires additional code)
+        // This would require implementing a modal similar to what's in admin/orders.js
+    }
+
+    function loadLowStockItems() {
+        fetch('/api/admin/inventory/low-stock')
+            .then(response => response.json())
+            .then(products => {
+                const productsContainer = document.getElementById('low-stock-items');
+                productsContainer.innerHTML = '';
+
+                if (products.length === 0) {
+                    productsContainer.innerHTML = '<p class="empty-message">No low stock items at this time.</p>';
+                    return;
+                }
+
+                products.forEach(product => {
+                    const productElement = document.createElement('div');
+                    productElement.className = 'product-item';
+                    productElement.innerHTML = `
+                        <div>
+                            <h4>${product.name}</h4>
+                            <p>Stock: ${product.stock_quantity} / Threshold: ${product.low_stock_threshold}</p>
+                        </div>
+                        <div>
+                            <span class="low-stock-badge">Low Stock</span>
+                        </div>
+                    `;
+
+                    productsContainer.appendChild(productElement);
+                });
+            })
+            .catch(error => {
+                console.error('Error loading low stock items:', error);
+                document.getElementById('low-stock-items').innerHTML =
+                    '<p class="error-message">Error loading low stock items</p>';
+            });
     }
 
     function loadOrderStatusCounts() {

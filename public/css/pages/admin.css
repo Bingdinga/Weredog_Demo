@@ -3,7 +3,7 @@
  * Table of Contents:
  * 1. Layout & Core Structure
  * 2. Admin Sidebar
- * 3. Admin Content 
+ * 3. Admin Content
  * 4. Tables & Data Display
  * 5. Forms & Inputs
  * 6. Cards & Components
@@ -60,6 +60,17 @@
 
 .charts-row .chart-card {
     width: 100%;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.section-header h2 {
+    margin-bottom: 0;
 }
 
 /* ---------- 2. ADMIN SIDEBAR ---------- */
@@ -322,6 +333,216 @@ th.sort-desc::after {
 .pagination-ellipsis {
     padding: 0.5rem;
     color: var(--color-text-secondary);
+}
+
+/* Section header with button */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.section-header h2 {
+    margin-bottom: 0;
+}
+
+/* Scrollable lists */
+.scrollable-list {
+    max-height: 500px;
+    overflow-y: auto;
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    background-color: var(--color-darker);
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-primary) var(--color-darker);
+}
+
+.scrollable-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.scrollable-list::-webkit-scrollbar-track {
+    background: var(--color-darker);
+    border-radius: 4px;
+}
+
+.scrollable-list::-webkit-scrollbar-thumb {
+    background-color: var(--color-primary);
+    border-radius: 4px;
+}
+
+/* Order items */
+/* Clear, simple order row styling */
+.order-row {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    background-color: var(--color-darker);
+    border-bottom: 1px solid var(--color-border);
+    height: 40px;
+}
+
+.order-row:last-child {
+    border-bottom: none;
+}
+
+.order-row:hover {
+    background-color: rgba(30, 30, 30, 0.8);
+}
+
+/* Order status badge */
+.order-row .order-status {
+    width: 90px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    text-align: center;
+    margin-right: 12px;
+}
+
+.order-row .status-pending {
+    background-color: rgba(255, 193, 7, 0.2);
+    color: #ffd54f;
+}
+
+.order-row .status-processing {
+    background-color: rgba(33, 150, 243, 0.2);
+    color: #64b5f6;
+}
+
+/* Order date */
+.order-row .order-date {
+    width: 100px;
+    color: var(--color-text-secondary);
+    font-size: 0.85rem;
+    white-space: nowrap;
+    margin-right: 12px;
+}
+
+/* Order ID */
+.order-row .order-id {
+    width: 80px;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-right: 12px;
+}
+
+/* Customer name */
+.order-row .order-customer {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--color-text);
+    margin-right: 12px;
+}
+
+/* Order amount */
+.order-row .order-amount {
+    width: 80px;
+    font-weight: 600;
+    color: var(--color-primary);
+    text-align: right;
+}
+
+/* Empty and error messages */
+.scrollable-list .empty-message,
+.scrollable-list .error-message {
+    padding: 1.5rem;
+    text-align: center;
+    color: var(--color-text-secondary);
+}
+
+.scrollable-list .error-message {
+    color: var(--color-accent);
+}
+
+/* Product items (Low Stock section) */
+.product-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background-color: var(--color-darker);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.product-item:last-child {
+    border-bottom: none;
+}
+
+.product-item h4 {
+    color: var(--color-text);
+    margin-bottom: 0.25rem;
+}
+
+.product-item p {
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.low-stock-badge {
+    background-color: rgba(255, 45, 85, 0.2);
+    color: var(--color-accent);
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* Scrollable List Container */
+.scrollable-list {
+    max-height: 500px;
+    overflow-y: auto;
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    background-color: var(--color-darker);
+    /* Custom scrollbar for better visibility in dark theme */
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-primary) var(--color-darker);
+}
+
+/* Custom scrollbar for WebKit browsers (Chrome, Safari, Edge) */
+.scrollable-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.scrollable-list::-webkit-scrollbar-track {
+    background: var(--color-darker);
+    border-radius: 4px;
+}
+
+.scrollable-list::-webkit-scrollbar-thumb {
+    background-color: var(--color-primary);
+    border-radius: 4px;
+}
+
+/* Adjust spacing for items inside scrollable lists */
+.scrollable-list .product-item,
+.scrollable-list .order-item {
+    margin: 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.scrollable-list .product-item:last-child,
+.scrollable-list .order-item:last-child {
+    border-bottom: none;
+}
+
+/* Messages inside scrollable lists */
+.scrollable-list .empty-message,
+.scrollable-list .error-message {
+    padding: 1.5rem;
+    text-align: center;
+    color: var(--color-text-secondary);
+}
+
+.scrollable-list .error-message {
+    color: var(--color-accent);
 }
 
 /* ---------- 5. FORMS & INPUTS ---------- */
@@ -628,6 +849,27 @@ th.sort-desc::after {
 }
 
 .btn-small:hover {
+    background-color: var(--color-accent);
+}
+
+/* Icon button style */
+.btn-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: var(--color-primary);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0;
+    transition: background-color 0.2s;
+}
+
+.btn-icon:hover {
     background-color: var(--color-accent);
 }
 

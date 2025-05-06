@@ -8,11 +8,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const applyButton = document.getElementById('apply-updates');
     const lowStockAlert = document.getElementById('low-stock-alert');
     const lowStockCount = document.getElementById('low-stock-count');
+    const resetFiltersBtn = document.getElementById('reset-filters');
     const paginationDiv = document.createElement('div');
     paginationDiv.id = 'pagination';
     paginationDiv.className = 'pagination';
 
     productTable.parentNode.insertBefore(paginationDiv, productTable.nextSibling);
+
+    // Check for URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const filterParam = urlParams.get('filter');
 
     // State
     let products = [];
@@ -28,6 +33,20 @@ document.addEventListener('DOMContentLoaded', () => {
     loadCategories();
     checkLowStock();
 
+
+    // Apply filter if specified in URL
+    if (filterParam === 'low') {
+        // Set the stock filter dropdown to 'low'
+        stockFilter.value = 'low';
+
+        // Highlight the low stock items somehow
+        // document.querySelector('.admin-content-header h1').textContent = 'Inventory Management';
+
+        // Load inventory with this filter applied
+        currentPage = 1;
+        loadInventory();
+    }
+
     // Event listeners
     searchInput.addEventListener('input', () => {
         currentPage = 1; // Reset to first page when searching
@@ -42,6 +61,26 @@ document.addEventListener('DOMContentLoaded', () => {
     stockFilter.addEventListener('change', () => {
         currentPage = 1;
         loadInventory();
+    });
+
+    resetFiltersBtn.addEventListener('click', () => {
+        // Reset all filter inputs
+        searchInput.value = '';
+        filterSelect.value = '';
+        stockFilter.value = 'all';
+
+        // Reset to first page
+        currentPage = 1;
+
+        // Reload inventory with reset filters
+        loadInventory();
+
+        // If we have a URL parameter, clear it from the URL without reloading the page
+        if (window.location.search) {
+            const url = new URL(window.location);
+            url.search = '';
+            window.history.pushState({}, '', url);
+        }
     });
 
     applyButton.addEventListener('click', applyBulkUpdates);
@@ -98,13 +137,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Store subcategory IDs for this parent
                     categoryHierarchy[category.category_id] = [];
 
-                    // Add subcategories without special formatting
+                    // Add subcategories
                     if (category.subcategories && category.subcategories.length > 0) {
                         category.subcategories.forEach(subcat => {
                             const subOption = document.createElement('option');
                             subOption.value = subcat.category_id;
-                            // No indentation or special formatting
-                            subOption.textContent = subcat.name;
+                            // Add a prefix to indicate it's a subcategory
+                            subOption.textContent = `— ${subcat.name}`;
                             filterSelect.appendChild(subOption);
 
                             // Add to hierarchy
@@ -112,6 +151,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         });
                     }
                 });
+
+                console.log('Category hierarchy:', categoryHierarchy);
             })
             .catch(error => {
                 console.error('Error loading categories:', error);
@@ -135,7 +176,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (filterSelect.value) {
-            params.append('category', filterSelect.value);
+            // Instead of just passing the selected category ID
+            // Include both the parent and any subcategories
+            const selectedCategory = filterSelect.value;
+            if (categoryHierarchy[selectedCategory]) {
+                // This is a parent category with subcategories
+                // Add all subcategories to the query
+                const allCategories = [selectedCategory, ...categoryHierarchy[selectedCategory]];
+                params.append('categories', allCategories.join(','));
+            } else {
+                // This is a single category with no children
+                params.append('category', selectedCategory);
+            }
         }
 
         if (stockFilter.value !== 'all') {

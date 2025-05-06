@@ -93,30 +93,23 @@
             </div>
 
             <div class="dashboard-content">
-                <!-- Top Products -->
                 <div class="dashboard-section">
-                    <h2>Top Products</h2>
-                    <div id="top-products" class="products-list">
+                    <div class="section-header">
+                        <h2>Low Stock Items</h2>
+                        <a href="/admin/inventory?filter=low" class="btn btn-small">View Inventory</a>
+                    </div>
+                    <div class="scrollable-list" id="low-stock-items">
                         <!-- Will be populated by JavaScript -->
                     </div>
                 </div>
 
-                <!-- Customer Insights -->
                 <div class="dashboard-section">
-                    <h2>Customer Insights</h2>
-                    <div class="insights-grid">
-                        <div class="insight-card">
-                            <h4>Total Customers</h4>
-                            <p id="total-customers-insight">0</p>
-                        </div>
-                        <div class="insight-card">
-                            <h4>Avg. Orders per Customer</h4>
-                            <p id="avg-orders-per-customer">0</p>
-                        </div>
-                        <div class="insight-card">
-                            <h4>Avg. Customer Value</h4>
-                            <p id="avg-customer-value">$0.00</p>
-                        </div>
+                    <div class="section-header">
+                        <h2>Pending & Processing Orders</h2>
+                        <a href="/admin/orders?status=pending,processing" class="btn btn-small">View Orders</a>
+                    </div>
+                    <div class="scrollable-list order-list" id="recent-orders">
+                        <!-- Will be populated by JavaScript -->
                     </div>
                 </div>
             </div>
