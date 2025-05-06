@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const width = canvas.clientWidth;
         const height = canvas.clientHeight;
         camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-        camera.position.set(0, 1.6, 3); // Position camera at eye level
+        camera.position.set(0, 3, 3); // Position camera at eye level
 
         // Create renderer
         renderer = new THREE.WebGLRenderer({ antialias: true });

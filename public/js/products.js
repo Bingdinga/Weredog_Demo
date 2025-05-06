@@ -2,6 +2,21 @@ import { ProductCardModel } from '/js/product-card-model.js';
 
 document.addEventListener('DOMContentLoaded', () => {
 
+    // Add to the top of the DOMContentLoaded event handler in products.js
+    window.addEventListener('pageshow', function (event) {
+        // If the page is being loaded from cache (back/forward navigation)
+        if (event.persisted) {
+            console.log('Page loaded from cache, reloading 3D models');
+            // Reload the 3D models
+            document.querySelectorAll('.product-model-container').forEach(container => {
+                const productId = container.id.split('-').pop();
+                setTimeout(() => {
+                    new ProductCardModel(container, productId);
+                }, 100);
+            });
+        }
+    });
+
     // Check if THREE.js is available and load it if not
     if (typeof THREE === 'undefined') {
         // Load Three.js scripts
@@ -47,6 +62,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentSearch = '';
     let currentPage = 1;
     const productsPerPage = 10;
+
+    // Keep track of active 3D models
+    let activeModels = [];
 
     // Initialize
     loadCategories();
@@ -172,9 +190,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displayProducts() {
+        // Clean up existing 3D models first
+        cleanupActiveModels();
+
         // Filter products
         let filteredProducts = products;
-
 
         // Filter by category
         if (currentCategory !== 'all') {
@@ -261,12 +281,31 @@ document.addEventListener('DOMContentLoaded', () => {
             // Initialize 3D model after the card is added to the DOM
             // Use a small delay to ensure DOM is updated
             setTimeout(() => {
-                new ProductCardModel(document.getElementById(`product-model-${product.product_id}`), product.product_id);
+                const modelInstance = new ProductCardModel(
+                    document.getElementById(`product-model-${product.product_id}`),
+                    product.product_id
+                );
+
+                // Add to active models array for cleanup later
+                activeModels.push(modelInstance);
             }, 10);
         });
 
         // Render pagination
         renderPagination(totalPages);
+    }
+
+    // Function to clean up WebGL contexts when changing page
+    function cleanupActiveModels() {
+        // Call dispose method on each active model
+        activeModels.forEach(model => {
+            if (model && typeof model.dispose === 'function') {
+                model.dispose();
+            }
+        });
+
+        // Clear the array
+        activeModels = [];
     }
 
     function renderPagination(totalPages) {
@@ -410,13 +449,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize wishlist status check
     setTimeout(checkWishlistStatus, 1000); // Delay slightly to allow products to render first
 
-    // Clean up 3D models when leaving the page
-    window.addEventListener('unload', () => {
-        // Find all model containers and dispose of their 3D contexts
-        document.querySelectorAll('.product-model-container').forEach(container => {
-            if (container.modelRenderer) {
-                container.modelRenderer.dispose();
-            }
-        });
-    });
+    // Clean up all 3D models when leaving the page
+    window.addEventListener('beforeunload', cleanupActiveModels);
 });

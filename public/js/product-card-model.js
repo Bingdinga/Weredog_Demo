@@ -7,6 +7,12 @@ import { applyMaterialToModel } from '/js/utils/materialHelper.js';
 class ProductCardModel {
     constructor(container, productId) {
         this.container = container;
+        if (this.container.hasChildNodes()) {
+            // Clear any existing canvas from previous instances
+            while (this.container.firstChild) {
+                this.container.removeChild(this.container.firstChild);
+            }
+        }
         this.productId = productId;
         this.useExistingTexture = false;
         this.scene = null;
