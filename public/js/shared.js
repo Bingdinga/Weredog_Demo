@@ -7,9 +7,9 @@ function updateCartCount() {
         .then(data => {
             const cartCount = document.getElementById('cart-count');
             if (cartCount) {
-                cartCount.textContent = data.itemCount || 0;
+                cartCount.textContent = data.totalQuantity || 0;
 
-                if (data.itemCount > 0) {
+                if (data.totalQuantity > 0) {
                     cartCount.classList.add('has-items');
                 } else {
                     cartCount.classList.remove('has-items');
